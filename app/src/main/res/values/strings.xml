@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">GOAT SAFE</string>
+    <string name="er_detected">Detected Medical Center Entry!!</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_maps">Maps_Activity</string>
+    <string name="google_maps_key">AIzaSyDwgenGCbExA3FYLnCSSvMgzoRuyUI4vfY</string>
+    <string name="location_string">" "</string>
+    <string name="check_location">Mock Fall Detect</string>
+    <string name="switch_on">Tracking On</string>
+    <string name="switch_off">Tracking Off</string>
+    <string name="button_okay">OKAY!</string>
+    <string name="button_not_okay">NOT OKAY!</string>
+    <string name="timer_text">SECONDS UNTIL EMERGENCY CONTACT</string>
+    <string name="timer_secs">60</string>
+    <string name="qr_code_text">Scan the QR code for Users medical info.</string>
+
+
+
+</resources>

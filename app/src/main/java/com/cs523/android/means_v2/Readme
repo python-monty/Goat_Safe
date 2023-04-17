@@ -1,0 +1,38 @@
+GOAT SAFE PERSONAL SAFETY
+-requirements-
+Permissions:
+--ACCESS_FINE_LOCATION
+--ACCESS_BACKGROUND_LOCATION
+--SEND_SMS
+
+Other:
+--Internet access (google maps will not show map in maps activity if no internet is available)
+
+
+
+
+
+
+
+Resources:
+GOOGLE MAPS -
+https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/location-develop-steps-0000001050746143
+
+https://www.youtube.com/watch?v=4eWoXPSpA5Y&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=6
+https://www.youtube.com/watch?v=mBOCAHsGkzs&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=5
+https://www.youtube.com/watch?v=GT-Br9iIqC0&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=2
+https://www.youtube.com/watch?v=9qGLYKsD-5I&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=3
+
+GEOFENCES -
+https://www.youtube.com/watch?v=nmAtMqljH9M&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=13
+
+
+ALERTDIALOGS -
+https://developer.android.com/reference/android/app/AlertDialog.Builder
+
+SWITCHMATERIAL -
+https://www.meghandev.io/post/switchmaterial-button-example-for-android-studio
+
+ACTIVITY LAUNCHING
+https://www.youtube.com/watch?v=nEe7bx_IuOQ&t=3s
+
