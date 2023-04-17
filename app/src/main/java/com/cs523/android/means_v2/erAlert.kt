@@ -68,7 +68,7 @@ class erAlert (): AppCompatActivity() {
 
 
         // SET UP THE COUNTDOWN TIMER - 60 SECONDS
-        countDownTimer = object : CountDownTimer(60000, 1000){
+        countDownTimer = object : CountDownTimer(10000, 1000){
 
             // COUNT DOWN AND UPDATE THE TEXT VIEW AT 1 SEC INTERVALS
             override fun onTick(millisUntilFinished: Long) {

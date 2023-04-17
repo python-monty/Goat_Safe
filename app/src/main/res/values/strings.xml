@@ -2,7 +2,7 @@
     <string name="app_name">GOAT SAFE</string>
     <string name="er_detected">Detected Medical Center Entry!!</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="title_activity_maps">Maps_Activity</string>
+    <string name="title_activity_maps">Goat Safe</string>
     <string name="google_maps_key">AIzaSyDwgenGCbExA3FYLnCSSvMgzoRuyUI4vfY</string>
     <string name="location_string">" "</string>
     <string name="check_location">Mock Fall Detect</string>

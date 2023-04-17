@@ -331,11 +331,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         startLocationUpdates()
 
         // WPI GEOFENCE SETTINGS
-        //addGeofence(wpiClinic,geofenceRadius )
+        addGeofence(wpiClinic,geofenceRadius )
 
         // TESTING GEOFENCE SETTINGS
 //        addGeofence(home, geofenceRadius)
-        addGeofence(home2, geofenceRadius)
+//        addGeofence(home2, geofenceRadius)
 
     }
 
