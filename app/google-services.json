@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "602958166393",
+    "project_id": "goat-safe",
+    "storage_bucket": "goat-safe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602958166393:android:cc46d8539711f5af4317a8",
+        "android_client_info": {
+          "package_name": "com.cs523.android.means_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602958166393-03pek28d9sn4b4td564hu68llvrtskjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3bPzlklXsVES3whNNk4-3vgSN9-K3Gkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602958166393-03pek28d9sn4b4td564hu68llvrtskjp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
