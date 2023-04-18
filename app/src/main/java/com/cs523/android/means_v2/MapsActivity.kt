@@ -204,9 +204,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
                         // TAKE THE ADDRESS LINE OF THAT OBJECT AND COVER TO STRING(FROM ADDRESS OBJECT)
                         currentStreetAddress = currentAddress.getAddressLine(0).toString()
 
-                        // ER ROOM NOTIFICATION....INITIATE AN INTENT USING THE ERALERT CLASS
-                        // SET UP TO CALL THE ER ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-                        erIntent = Intent(this, erAlert::class.java)
+                        //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
+                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
+                        erIntent = Intent(this, FallAlert::class.java)
 
                         // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
                         erIntent.putExtra("address", currentStreetAddress)
@@ -331,11 +331,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         startLocationUpdates()
 
         // WPI GEOFENCE SETTINGS
-        addGeofence(wpiClinic,geofenceRadius )
+//        addGeofence(wpiClinic,geofenceRadius )
 
         // TESTING GEOFENCE SETTINGS
 //        addGeofence(home, geofenceRadius)
-//        addGeofence(home2, geofenceRadius)
+        addGeofence(home2, geofenceRadius)
 
     }
 
@@ -406,11 +406,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             Log.d(TAG, "Background Location Permission is already granted")
 
             // WPI GEOFENCE SETTINGS
-            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
+//            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
 
                 // TESTING GEOFENCE SETTINGS
 //            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
-//            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
+            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
 
                 Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL
             )

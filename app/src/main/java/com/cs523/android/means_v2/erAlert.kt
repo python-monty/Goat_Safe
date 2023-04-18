@@ -1,6 +1,7 @@
 package com.cs523.android.means_v2
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.telephony.SmsManager
@@ -28,7 +29,7 @@ private var REQUEST_SMS_PERMISSION: Int = 10002
 
 //private lateinit var erBinding: ActivityErAlertBinding
 
-class erAlert (): AppCompatActivity() {
+class erAlert: AppCompatActivity() {
 
     // INIT THE VAR TO HOLD THE TEXT ABOVE THE TIMER
     private lateinit var timerText: TextView
@@ -39,14 +40,16 @@ class erAlert (): AppCompatActivity() {
     // INIT THE VAR TO HOLD THE BINDING
     private lateinit var erBinding: ActivityErAlertBinding
 
-    // INIT VAR TO HOLD TEXT MESSAGE STRING TO SEND TO EMERGENCY CONTACT
-    private lateinit var textMessage: String
-
     // INIT VAR TO HOLD THE ADDRESS OF THE MEDICAL FACILITY
     private lateinit var textAddress: String
 
+    // INIT VAR TO HOLD TEXT MESSAGE STRING TO SEND TO EMERGENCY CONTACT
+    private lateinit var textMessage: String
+
     // INIT VAR TO HOLD THE COUNTERTIMER OBJECT
     private lateinit var countDownTimer: CountDownTimer
+
+    private lateinit var alarm: MediaPlayer
 
 //    private var qrCodeIntent: Intent? = null
 //
@@ -63,9 +66,24 @@ class erAlert (): AppCompatActivity() {
         timerText=findViewById(R.id.timer_text)
         timer=findViewById(R.id.timer)
 
+        alarm = MediaPlayer.create(this ,R.raw.alarm)
+        alarm.start()
+
 //        qrCodeIntent = Intent(erContext,QrCode::class.java)
 //        qrCodeIntent!!.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+
+        // MESSAGE TEXT REC'D FROM THE INTENT EXTRAS
+        //textMessage = intent.getStringExtra("text").toString()
+
+        // MESSAGE ADDRESS REC'D THE INTENT EXTRAS
+        textAddress = intent.getStringExtra("address").toString()
+
+        textMessage = "The Goat Safe phone app received notification from" +
+                "the user. The user has entered a Medical Treatment Facility " +
+                "and was unable to mark themselves as 'Okay' in the app. Please" +
+                " check on the user. At the time of the notification, the user " +
+                "was located at $textAddress"
 
         // SET UP THE COUNTDOWN TIMER - 60 SECONDS
         countDownTimer = object : CountDownTimer(10000, 1000){
@@ -80,18 +98,13 @@ class erAlert (): AppCompatActivity() {
                 sendSms(this@erAlert, contact, textMessage )
 
 //                startActivity(qrCodeIntent)
-
+                alarm.stop()
                 Toast.makeText(this@erAlert, "Sent message to $contact", Toast.LENGTH_SHORT).show()
             }
         // START THE TIMER
         }.start()
 
 
-        // MESSAGE TEXT REC'D FROM THE INTENT EXTRAS
-        textMessage = intent.getStringExtra("text").toString()
-
-        // MESSAGE ADDRESS REC'D THE INTENT EXTRAS
-        textAddress = intent.getStringExtra("address").toString()
 //
 
         // ATTACH BUTTON VAR TO THE NOT OKAY ELEMENT IN THE LAYOUT
@@ -102,6 +115,7 @@ class erAlert (): AppCompatActivity() {
         notOkayButton.setOnClickListener {
             sendSms(this, contact, textMessage )
             countDownTimer.cancel()
+            alarm.stop()
             Toast.makeText(this, "Sent message to $contact\n\n " +
             "Use your phone's back button to return to reset Goat Safe", Toast.LENGTH_LONG).show()
         }
@@ -114,6 +128,7 @@ class erAlert (): AppCompatActivity() {
         // CANCEL SENDING OF SMS MESSAGE TO EMERGENCY CONTACT (TOAST MESSAGE TOO)
         okayButton.setOnClickListener {
             countDownTimer.cancel()
+            alarm.stop()
             Toast.makeText(this, "           Emergency Cancelled!!\n\n " +
                     "Use your phone's back button to return to reset Goat Safe"
                 , Toast.LENGTH_LONG).show()

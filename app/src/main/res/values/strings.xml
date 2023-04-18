@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">GOAT SAFE</string>
     <string name="er_detected">Detected Medical Center Entry!!</string>
+    <string name="fall_detected">Fall Detected!!</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_maps">Goat Safe</string>
     <string name="google_maps_key">AIzaSyDwgenGCbExA3FYLnCSSvMgzoRuyUI4vfY</string>

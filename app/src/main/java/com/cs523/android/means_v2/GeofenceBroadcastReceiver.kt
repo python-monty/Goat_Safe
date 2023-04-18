@@ -87,9 +87,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             // USE THE ENTER TRANSITION TRIGGER TEMPORARILY TO MORE EASILY TEST FUNCTIONALITY OF THE TRIGGERS
             // DISBLE THIS ONCE APP COMPLETE AND LEAVE ONLY THE TOAST MESSAGE FOR GEOFENCE ENTRY...THE DWELL
             // SHOULD BE THE TRIGGERING EVENT.
-//            Geofence.GEOFENCE_TRANSITION_ENTER -> context.startActivity(erIntent)
-            Geofence.GEOFENCE_TRANSITION_ENTER -> Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT)
-                .show()
+            Geofence.GEOFENCE_TRANSITION_ENTER -> context.startActivity(erIntent)
+//            Geofence.GEOFENCE_TRANSITION_ENTER -> Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT)
+//                .show()
 
             Geofence.GEOFENCE_TRANSITION_EXIT -> Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT)
                 .show()
