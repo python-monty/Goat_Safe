@@ -289,12 +289,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.goathead))
             markerOptions.rotation(location.bearing)
             userLocationMarker = mMap.addMarker(markerOptions)!!
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
 
         } else{
             // IF MARKER WAS NOT EMPTY...USE IT
             userLocationMarker!!.position = latLng
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
         }
 
     }
@@ -357,7 +357,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         mapAddressText.text = address
     }
 //
-//    // SEND SMS MESSAGE
+//    // SEND SMS MESSAGE  <<<<<  MOVED TO THE ERALERT ACTIVITY >>>>>>>>>
 //    fun sendSms(context: Context, contact: String?, message: String) {
 //
 //        // CHECK PERMISSIONS...

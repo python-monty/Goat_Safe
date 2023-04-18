@@ -33,10 +33,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
-        // This method is called when the BroadcastReceiver is receiving an Intent broadcast.
-//        Toast.makeText(context, "Geofence Receiver Triggered!!", Toast.LENGTH_LONG).show()
-        println("LINE18:GeofenceBcast - A geofence event was received....")
 
+        println("LINE18:GeofenceBcast - A geofence event was received....")
 
         geoCoder = Geocoder(context)
 //
@@ -86,19 +84,18 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
 
         when (transitionType) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> context.startActivity(erIntent)
-//                Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT)
-//                .show()
+            // USE THE ENTER TRANSITION TRIGGER TEMPORARILY TO MORE EASILY TEST FUNCTIONALITY OF THE TRIGGERS
+            // DISBLE THIS ONCE APP COMPLETE AND LEAVE ONLY THE TOAST MESSAGE FOR GEOFENCE ENTRY...THE DWELL
+            // SHOULD BE THE TRIGGERING EVENT.
+//            Geofence.GEOFENCE_TRANSITION_ENTER -> context.startActivity(erIntent)
+            Geofence.GEOFENCE_TRANSITION_ENTER -> Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT)
+                .show()
+
             Geofence.GEOFENCE_TRANSITION_EXIT -> Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT)
                 .show()
+
             Geofence.GEOFENCE_TRANSITION_DWELL -> context.startActivity(erIntent)
 
-
-
-
-
-//                Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_SHORT)
-//                    .show()
         }
     }
 }

@@ -13,7 +13,20 @@
     <string name="timer_text">SECONDS UNTIL EMERGENCY CONTACT</string>
     <string name="timer_secs">60</string>
     <string name="qr_code_text">Scan the QR code for Users medical info.</string>
-
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="login">Login</string>
+    <string name="registration">Register</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="enter_your_phone_number">enter your phone number</string>
+    <string name="enter_your_medical_history">enter your medical history</string>
+    <string name="update_information">Update Information</string>
+    <string name="emergency_contact_name">emergency_contact_name</string>
+    <string name="emergency_contact_number">emergency_contact_number</string>
+    <string name="logged_in_user_email">Logged in user email</string>
+    <string name="maps_activity_would_be_here">Maps activity would be here</string>
+    <string name="check_user_information">Check User Information</string>
+    <string name="empty_for_now">empty for now</string>
 
 
 </resources>
