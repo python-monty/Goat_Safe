@@ -13,6 +13,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -63,9 +64,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 
     private lateinit var tempButton: Button
 
-//    private var contact: String = "6178774893"
-//
-//    private var message: String = "test message text..."
+    private var contact: String = "6178774893"
+
+    private var message: String = "test message text..."
 
     private lateinit var geofencingClient: GeofencingClient
 
@@ -86,11 +87,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
     private lateinit var geofenceHelper: GeofenceHelper
 
     // VAR TO HOLD THE ER ACTIVITY INTENT WHEN CALLED
-    private lateinit var erIntent: Intent
+    //private lateinit var erIntent: Intent
+
+    private lateinit var fallIntent: Intent
+
+    private lateinit var userID: String
+
+    private lateinit var userEmail: String
+
+    private lateinit var userPassword: String
 
     // VAR FOR GEOCODING/REVERSE GEOCODING OF THE CURRENT LOCATION
     private var currentStreetAddress: String? = null
 
+
+
+//    private var phone: String = "6178774893"
+
+//    private var message: String = "it worked"
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +116,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         // REQUEST PERMISSIONS FOR ALL REQUIRED PERMISSIONS AT THE SAME TIME.
         requestPermissions()
 
+        // GET THE UID OF THE LOGGED INTO USER, SUPPLIED FROM THE LOGINACTIVITY INTENT
+        // AND ADDED AS .PUTEXTRA
+        userID = intent.getStringExtra("UID").toString()
+        userEmail = intent.getStringExtra("email").toString()
+        userPassword = intent.getStringExtra("password").toString()
+
+        println("Value of the userID rec'd from the Intent sent from login activity $userID")
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used. (moved to onrequestpermissions returned
 //        val mapFragment = supportFragmentManager
@@ -150,7 +171,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         }
 
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-        //<<<< START OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL/ER IS DETECTED>>>>>//
+        //<<<< START OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>//
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
         // INIT THE ONCLICKLISTENER FOR THE CHECK ADDRESS BUTTON
         tempButton = findViewById(R.id.temp_button)
@@ -204,15 +225,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
                         // TAKE THE ADDRESS LINE OF THAT OBJECT AND COVER TO STRING(FROM ADDRESS OBJECT)
                         currentStreetAddress = currentAddress.getAddressLine(0).toString()
 
+//                        //ER ENTRY NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
+//                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
+//                        erIntent = Intent(this, erAlert::class.java)
+//
+//                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
+//                        erIntent.putExtra("address", currentStreetAddress)
+//
+//                        // CALL THE ER ALERT ACTIVITY
+//                        startActivity(erIntent)
+//
+//
                         //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
                         // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-                        erIntent = Intent(this, FallAlert::class.java)
+                        fallIntent = Intent(this, FallAlert::class.java)
 
                         // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
-                        erIntent.putExtra("address", currentStreetAddress)
+                        fallIntent.putExtra("address", currentStreetAddress)
 
                         // CALL THE ER ALERT ACTIVITY
-                        startActivity(erIntent)
+                        startActivity(fallIntent)
+//                        sendSms(this, contact, message)
 
                     } catch (e: IOException) {
                         Toast.makeText(this, "IOException: No Internet access", Toast.LENGTH_LONG)
@@ -235,6 +268,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         inflater.inflate(R.menu.options_menu,menu)
         return true
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.user_settings -> {
+                val intent = Intent(this, registration2::class.java)
+                // ADD THE UID TO THE INTENT TO BE USED IN THE MAPS ACTIVITY
+                intent.putExtra("UID", userID)
+                intent.putExtra("email", userEmail)
+                intent.putExtra("password", userPassword)
+                startActivity(intent)
+                Toast.makeText(this, "Clicked user settings", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sign_out ->{
+                val intent = Intent(this, login::class.java)
+                Toast.makeText(this, "Signed User Out", Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
 
     // GENERATE THE GOOGLE MAP AND IT'S SETTINGS
     override fun onMapReady(googleMap: GoogleMap) {
@@ -361,7 +417,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 //    fun sendSms(context: Context, contact: String?, message: String) {
 //
 //        // CHECK PERMISSIONS...
-//        if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
+//        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
 //        ) {
 //
 //            println("INSIDE Send sms...perms granted...sending message")
@@ -406,11 +462,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             Log.d(TAG, "Background Location Permission is already granted")
 
             // WPI GEOFENCE SETTINGS
-//            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
+            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
 
-                // TESTING GEOFENCE SETTINGS
+            // TESTING GEOFENCE SETTINGS
 //            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
-            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
+//            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
 
                 Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL
             )
@@ -536,6 +592,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             requestPermissions()
         }
     }
-
-
 }

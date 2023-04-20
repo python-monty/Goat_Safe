@@ -7,17 +7,13 @@
         android:title="Goat Icon"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/sign_in_out"
+    <item android:id="@+id/sign_out"
         android:icon="@drawable/account_icon2"
-        android:title="Sign_InOut"
+        android:title="Sign_Out"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/user_settings"
         android:title="User Settings"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/app_settings"
-        android:title="App Settings"
         app:showAsAction="never" />
 
 </menu>

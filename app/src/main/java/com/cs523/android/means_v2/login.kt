@@ -35,10 +35,13 @@ class login : AppCompatActivity() {
             if(email.isNotEmpty() && pass.isNotEmpty()){
                 auth.signInWithEmailAndPassword(email,pass).addOnCompleteListener{
                     if(it.isSuccessful){
-                        /*val intentMain = Intent(this, MainActivity::class.java)
-                        startActivity(intentMain)
-                         */
+                        val userID = auth.currentUser?.uid.toString()
                         val intentMaps = Intent(this, MapsActivity::class.java)
+                        // ADD THE UID TO THE INTENT TO BE USED IN THE MAPS ACTIVITY
+                        intentMaps.putExtra("UID", userID)
+                        intentMaps.putExtra("email", email)
+                        intentMaps.putExtra("password", pass)
+
                         startActivity(intentMaps)
                     }else{
                         Toast.makeText(this, it.exception.toString(),Toast.LENGTH_SHORT).show()

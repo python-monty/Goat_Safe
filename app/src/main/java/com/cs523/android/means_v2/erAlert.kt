@@ -1,12 +1,15 @@
 package com.cs523.android.means_v2
 
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -66,7 +69,7 @@ class erAlert: AppCompatActivity() {
         timerText=findViewById(R.id.timer_text)
         timer=findViewById(R.id.timer)
 
-        alarm = MediaPlayer.create(this ,R.raw.alarm)
+        alarm = MediaPlayer.create(this@erAlert ,R.raw.alarm)
         alarm.start()
 
 //        qrCodeIntent = Intent(erContext,QrCode::class.java)
@@ -96,10 +99,13 @@ class erAlert: AppCompatActivity() {
             // WHEN THE TIMER EXPIRES, SEND THE TEXT MESSAGE
             override fun onFinish() {
                 sendSms(this@erAlert, contact, textMessage )
+//                sendSms(this@erAlert, contact, textMessage )
+
 
 //                startActivity(qrCodeIntent)
                 alarm.stop()
                 Toast.makeText(this@erAlert, "Sent message to $contact", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@erAlert, "Sent message to $contact", Toast.LENGTH_SHORT).show()
             }
         // START THE TIMER
         }.start()
@@ -113,10 +119,11 @@ class erAlert: AppCompatActivity() {
         // SET UP A LISTENER FOR CLICKS OF THE NOT OKAY BUTTON, IF CLICKED
         // SEND SMS MESSAGE TO EMERGENCY CONTACT (TOAST MESSAGE TOO)
         notOkayButton.setOnClickListener {
-            sendSms(this, contact, textMessage )
+            sendSms(this@erAlert, contact, textMessage )
+//            sendSms(this, contact, textMessage )
             countDownTimer.cancel()
             alarm.stop()
-            Toast.makeText(this, "Sent message to $contact\n\n " +
+            Toast.makeText(this@erAlert, "Sent message to $contact\n\n " +
             "Use your phone's back button to return to reset Goat Safe", Toast.LENGTH_LONG).show()
         }
 
@@ -129,18 +136,38 @@ class erAlert: AppCompatActivity() {
         okayButton.setOnClickListener {
             countDownTimer.cancel()
             alarm.stop()
-            Toast.makeText(this, "           Emergency Cancelled!!\n\n " +
+            Toast.makeText(this@erAlert, "           Emergency Cancelled!!\n\n " +
                     "Use your phone's back button to return to reset Goat Safe"
                 , Toast.LENGTH_LONG).show()
         }
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        alarm.stop()
+    }
+
     // CREATE THE OPTIONS MENU AT THE TOP OF THE ACTIVITY
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         var inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.options_menu,menu)
+        inflater.inflate(R.menu.options_menu2,menu)
         return true
+    }
+
+    // WHEN AN ITEM IN THE OPTIONS MENU IS SELECTED, CHECK WHICH ITEM
+    // WAS SELECTED AND THEN DO SOMETHING
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+
+            R.id.sign_out ->{
+                val intent = Intent(this, login::class.java)
+                Toast.makeText(this, "Signed User Out", Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
 
@@ -151,12 +178,12 @@ class erAlert: AppCompatActivity() {
         // CHECK PERMISSIONS...
         // CHECK PERMS FOR SEND SMS
         if (!EasyPermissions.hasPermissions(
-                this,
+                this@erAlert,
                 android.Manifest.permission.SEND_SMS
             )
         ) {
             EasyPermissions.requestPermissions(
-                this,
+                this@erAlert,
                 "You need to accept location permissions to use this app.",
                 REQUEST_SMS_PERMISSION,
                 android.Manifest.permission.SEND_SMS
@@ -165,13 +192,20 @@ class erAlert: AppCompatActivity() {
         } else {
             println("permissions are granted...sending the sms...in the send sms function")
             // IF GRANTED, SEND THE MESSAGE
-            val manager = SmsManager.getDefault()
-            manager.sendTextMessage(contact, null, message, null, null)
+            val version = Build.VERSION.SDK_INT
+
+            println("LINE180: FallAlert - version is $version ")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                println("LINE181 - FallAlert - inside the SendSms and android 31 or above ")
+                val manager = this@erAlert.getSystemService(SmsManager::class.java)
+                manager.sendTextMessage(contact, null, message, null, null)
+            } else {
+                println("LINE185 - FallAlert - inside the SendSms and android 30 and below")
+                val manager = SmsManager.getDefault()
+                manager.sendTextMessage(contact, null, message, null, null)
+            }
 
         }
     }
-
-
-
 
 }

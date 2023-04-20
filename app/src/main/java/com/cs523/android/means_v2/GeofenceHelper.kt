@@ -27,7 +27,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
     fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
         return GeofencingRequest.Builder()
             .addGeofence(geofence!!)
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_EXIT)
             .build()
     }
 
@@ -38,7 +38,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
             .setCircularRegion(latLng.latitude, latLng.longitude, radius)
             .setRequestId(ID!!)
             .setTransitionTypes(transitionTypes)
-            .setLoiteringDelay(10000)
+            .setLoiteringDelay(5000)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .build()
     }
