@@ -67,7 +67,19 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         erIntent!!.putExtra("address", currentStreetAddress)
         erIntent!!.putExtra("text", wpiLocationText)
 
+
         var geoFencingEvent: GeofencingEvent? = GeofencingEvent.fromIntent(intent)
+
+
+
+        println("geoFencingEvent data: $geoFencingEvent")
+
+        var stringversion = geoFencingEvent.toString()
+
+        println("geoFencingEvent string data: $stringversion")
+
+//        var geoFencingEvent: object = GeofencingEvent.fromIntent(intent)
+
 
         if (geoFencingEvent != null) {
             if (geoFencingEvent.hasError()) {

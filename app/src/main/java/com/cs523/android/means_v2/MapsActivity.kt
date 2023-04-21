@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
 import com.cs523.android.means_v2.databinding.ActivityMapsBinding
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -34,6 +35,8 @@ import java.io.IOException
 
 
 private const val TAG = "MapsActivity"
+
+var dataViewModel: ViewModel = DataViewModel()
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.PermissionCallbacks {
 
@@ -122,7 +125,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         userEmail = intent.getStringExtra("email").toString()
         userPassword = intent.getStringExtra("password").toString()
 
-        println("Value of the userID rec'd from the Intent sent from login activity $userID")
+
+        // CALL TO UPDATE THE VIEWMODEL WITH USER ID
+        updateViewModel(userID, dataViewModel as DataViewModel)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used. (moved to onrequestpermissions returned
 //        val mapFragment = supportFragmentManager
@@ -150,6 +155,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 
         // INIT THE GEOFENCEHELPER CLASS
         geofenceHelper = GeofenceHelper(this)
+
+
+        //////////////////////////////////////////////
+        geofenceHelper.setExtra(userID)
+
+
+        var uidfromhelper = geofenceHelper.getExtra()
+
+        println("value of extra stored in uidfromhelper is : $uidfromhelper")
+///////////////////////////////////////////////////////////////////////////////
 
         // INIT THE LISTENER FOR THE TOGGLE SWITCH
         enableLocationSwitch = findViewById(R.id.switch1)
@@ -415,6 +430,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 //
 //    // SEND SMS MESSAGE  <<<<<  MOVED TO THE ERALERT ACTIVITY >>>>>>>>>
 //    fun sendSms(context: Context, contact: String?, message: String) {
+//        val Sent = "SMS_SENT"
+//
+//        val Delivered = "SMS_DELIVERED"
+//
 //
 //        // CHECK PERMISSIONS...
 //        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
@@ -422,8 +441,59 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 //
 //            println("INSIDE Send sms...perms granted...sending message")
 //            // IF GRANTED, SEND THE MESSAGE
-//            val manager = SmsManager.getDefault()
-//            manager.sendTextMessage(contact, null, message, null, null)
+////            val manager = SmsManager.getDefault()
+////            manager.sendTextMessage(contact, null, message, null, null)
+//
+//            val sentPI = PendingIntent.getBroadcast(
+//                this, 0, Intent(Sent), 0
+//            )
+//
+//            val deliveredPI = PendingIntent.getBroadcast(
+//                this, 0, Intent(Delivered), 0
+//            )
+//
+//            // WHEN THE SMS HAS BEEN SENT
+//            val br: BroadcastReceiver = object : BroadcastReceiver() {
+//                override fun onReceive(arg0: Context?, arg1: Intent?) {
+//                    when (resultCode) {
+//                        RESULT_OK -> Log.d(TAG, "Send Message Result Code OK")
+//
+//                        SmsManager.RESULT_ERROR_GENERIC_FAILURE -> Log.d(
+//                            TAG,
+//                            "Send Message Result Generic Failure"
+//                        )
+//                        SmsManager.RESULT_ERROR_NO_SERVICE -> Log.d(
+//                            TAG,
+//                            "Send Message Result Code No Service"
+//                        )
+//                        SmsManager.RESULT_ERROR_NULL_PDU -> Log.d(
+//                            TAG,
+//                            "Send Message Result Code Null PDU"
+//                        )
+//                        SmsManager.RESULT_ERROR_RADIO_OFF -> Log.d(
+//                            TAG,
+//                            "Send Message Result Code Radio Off"
+//                        )
+//                    }
+//                    unregisterReceiver(this)
+//                }
+//            }
+//            registerReceiver(br, IntentFilter(Sent))
+//
+//            //  WHEN THE SMS HAS BEEN DELIVERED
+//            val br2: BroadcastReceiver = object : BroadcastReceiver() {
+//                override fun onReceive(arg0: Context?, arg1: Intent?) {
+//                    when (resultCode) {
+//                        RESULT_OK -> Log.d(TAG, "Delivered Message Result OK")
+//                        RESULT_CANCELED -> Log.d(TAG, "Send Message Result Result Canceled")
+//                    }
+//                    unregisterReceiver(this)
+//                }
+//            }
+//            registerReceiver(br2, IntentFilter(Delivered))
+//
+//            val sms: SmsManager = SmsManager.getDefault()
+//            sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
 //
 //
 //        } else {
@@ -431,11 +501,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 //            // IF NOT, GRANTED..ASK FOR PERMISSIONS
 //            Log.d(TAG, "ERROR: No permission to send an SMS")
 //            Toast.makeText(this , "ERROR: No permission to send an SMS", Toast.LENGTH_LONG).show()
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.SEND_SMS)){
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(
+//                    this, android.Manifest.permission.SEND_SMS)){
 //                // SHOW USER A DIALOG..THEN REQUEST ACCESS
-//                ActivityCompat.requestPermissions(this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
+//                ActivityCompat.requestPermissions(
+//                    this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
 //            } else {
-//                ActivityCompat.requestPermissions(this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
+//                ActivityCompat.requestPermissions(
+//                    this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
 //            }
 //        }
 //    }
@@ -473,6 +546,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 
             // SET UP THE GEOFENCING REQUEST
             var geofencingRequest: GeofencingRequest = geofenceHelper.getGeofencingRequest(geofence)
+
+
 
             // SET UP A PENDING INTENT FOR THE GEOFENCE
             var geoPendingIntent: PendingIntent? = geofenceHelper.getPendingIntent()
@@ -591,5 +666,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             // IF USE HAS NOT PERMANENTLY DISABLED A PERMISSION, REQUEST PERMISSIONS AGAIN.
             requestPermissions()
         }
+    }
+
+    // UPDATE THE VIEWMODEL WITH THE CURRENT USERS UID
+    fun updateViewModel(UID: String, dataViewModel: DataViewModel){
+        dataViewModel.userID.value = UID
+//        dataViewModel.MapsContext.value = this
+
+        println("Value of the Intent while in MapsActivity is $this")
+
     }
 }

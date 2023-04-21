@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    android:background="@color/grey"
+    tools:context=".registration">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/app_title"
+            style="@style/AppText"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/user_phone_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="20dp"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/update_title"
+            style="@style/AppText"
+            app:layout_constraintTop_toTopOf="@id/app_title"
+            app:layout_constraintBottom_toTopOf="@id/user_phone_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="10dp"
+            android:text="@string/update_title"
+            android:textAlignment="center"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+    <!--USERS PHONE-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/user_phone_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/update_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/user_phone"
+                android:hint="@string/userphone_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS EMERGENCY CONTACT PHONE#-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emergency_contact_phone_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/user_phone_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/emergency_contact_phone"
+                android:hint="@string/er_phone_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS EMERGENCY CONTACT NAME-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emergency_contact_name_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/emergency_contact_phone_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/emergency_contact_name"
+                android:hint="@string/emergency_contact_name_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS MEDICAL CONDITIONS-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/medical_conditions_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/emergency_contact_name_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/medical_conditions"
+                android:hint="@string/medical_conditions_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS MEDICAL PRESCRIPTIONS-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/medical_prescripts_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/medical_conditions_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/medical_prescripts"
+                android:hint="@string/medical_prescripts_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS MEDICAL PROVIDER NAME-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/medical_provider_name_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/medical_prescripts_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/medical_provider_name"
+                android:hint="@string/medical_provider_name_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    <!--USERS MEDICAL PROVIDER PHONE-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/medical_provider_phone_field"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/medical_provider_name_field">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/medical_provider_phone"
+                android:hint="@string/medical_provider_phone_hint" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:text="@string/update_account"
+            android:paddingTop="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/medical_provider_phone_field"
+            android:textColor="@color/black"
+            android:backgroundTint="#05F60F" />
+        <View
+            android:id="@+id/filler"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:background="@color/grey"
+            app:layout_constraintTop_toBottomOf="@id/updateButton"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

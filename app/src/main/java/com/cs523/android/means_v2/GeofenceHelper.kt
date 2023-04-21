@@ -1,5 +1,9 @@
 package com.cs523.android.means_v2
 
+
+// GEOFENCE CLASS TO SET UP GEOFENCES
+
+
 import android.app.PendingIntent
 import android.content.Context
 import android.content.ContextWrapper
@@ -14,7 +18,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 
 
-// GEOFENCE CLASS TO SET UP GEOFENCES
+
 
 
 class GeofenceHelper(base: Context?) : ContextWrapper(base) {
@@ -22,6 +26,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
     //private var TAG: String = "GeofenceHelper"
     private var pendingIntent: PendingIntent? = null
     private val GEO_REQUEST_CODE: Int = 20001
+    var intentExtras: String? = null
 
 
     fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
@@ -50,7 +55,10 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         if (pendingIntent != null) {
             return pendingIntent
         }
+
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        intent.putExtra("userID",intentExtras)
+
 
         if(Build.VERSION.SDK_INT >= 31) {
             pendingIntent =
@@ -58,7 +66,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
                     this,
                     GEO_REQUEST_CODE,
                     intent,
-                    PendingIntent.FLAG_MUTABLE
+                    PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
             return pendingIntent
         }else{
@@ -84,6 +92,24 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
             }
         }
         return e.localizedMessage
+    }
+
+    fun setExtra(uid: String){
+        println("value of uid inside geofencehelp/setextra is :$uid")
+
+        intentExtras = uid
+
+    }
+
+    fun printExtra(){
+        println("Value printed from extras using the geohelper print function is : $intentExtras")
+
+    }
+
+    fun getExtra(): String? {
+        println("Value printed from extras using the geohelper print function is : $intentExtras")
+        return intentExtras
+
     }
 
     companion object {

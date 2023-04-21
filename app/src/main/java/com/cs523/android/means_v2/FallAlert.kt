@@ -1,12 +1,16 @@
 package com.cs523.android.means_v2
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.telephony.SmsManager
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -14,7 +18,10 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.cs523.android.means_v2.databinding.ActivityFallAlertBinding
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import pub.devrel.easypermissions.EasyPermissions
 
 // !!!!!!!!!!!!!!!  THIS CONTACT NEEDS TO ULTIMATELY COME FROM
@@ -54,6 +61,8 @@ class FallAlert: AppCompatActivity() {
 
     private lateinit var alarm: MediaPlayer
 
+    private var UID: String? = null
+
 //    private var qrCodeIntent: Intent? = null
 //
 //    private var FallContext: Context = applicationContext
@@ -64,6 +73,65 @@ class FallAlert: AppCompatActivity() {
         // SET UP THE BINDING
         fallBinding= ActivityFallAlertBinding.inflate(layoutInflater)
         setContentView(fallBinding.root)
+
+        // SET UP AN OBSERVER OF THE USERID LIVE DATA IN THE VIEW MODEL
+        // OBTAIN THE USERID WHEN IT UPDATES, USE IT TO PULL THE USERS DATA
+        // FROM THE DB AS NEEDED
+        (dataViewModel as DataViewModel).userID.observe(this, Observer {
+            UID = it
+            println("Value of contact in the observer is $UID")
+        })
+
+
+        // USE THE UID TO GET THE USERS EMERGENCY CONTACT FROM THE DATABASE
+        // INSTANTIATE THE FIREBASE CLOUD FIRESTORE DATABASE SERVICE
+        val db = Firebase.firestore
+
+        // OBTAIN THE USER PROFILE DOCUMENT FROM THE DATABASE
+        // BUT PULLING ALL THE USERS DOCUMENT FILE, THEN ITERATE TO
+        // CHECK FOR THE USERS RECORD, FIND THE KEY MATCHING
+        // USERERCONTACTPHONE AND PULL THE VALUE FROM THAT KEY
+        // STORE IN CONTACT VARIABLE
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+
+                for (document in result) {
+
+                    if (document.id == UID) {
+
+                        val uidData = document.data
+
+                        // FILTER THE USERS PROFILE BASED ON THE USERERCONTACTPHONE STRING
+                        // GET THE EMERGENCY CONTACT PHONE NUMBER VALUE FROM THAT KEY
+                        var rawPhone =
+                            uidData.filterKeys { it == "UserErContactPhone" }.values.toString()
+                        // DROP THE LEADING SQUARE BRACKET
+                        var partialPhone = rawPhone.drop(1)
+                        /// DROP THE TRAILING SQUARE BRACKET
+                        contact = partialPhone.dropLast(1)
+
+//                        // GET ALL THE KEYS FROM THE USERS PROFILE HASHMAP
+//                        println("here are the hashmap keys: ${uidData.keys}")
+                        // GET ALL THE VALUES FROM THE USERS PROFILE HASHMAP
+//                        println("here are the hashmap values: ${uidData.values}")
+//                        var pattern = Regex("(UserErContactPhone=){1}[0-9]{10}")
+//                        var result = pattern.containsMatchIn(uidData.toString())
+//                        println("here is the regex result $result")
+
+                        Log.d(TAG, "Here is the users data: ${document.data}")
+                        Log.d(TAG, "Here is the users er contact: $contact")
+
+                    }
+//                    Log.d(TAG, "${document.id} => ${document.data}")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+
+            }
+
+
 
         // ATTACH THE VARS TO ELEMENTS IN THE LAYOUT
         timerText=findViewById(R.id.timer_text)
@@ -178,20 +246,20 @@ class FallAlert: AppCompatActivity() {
     // SEND SMS MESSAGE
     private fun sendSms(context: Context, contact: String?, message: String) {
 
+        val Sent = "SMS_SENT"
+
+        val Delivered = "SMS_DELIVERED"
+
         println("in the send sms function")
-        println("LINE158: FallAlert - inside sendSMS value of message is $message")
-
-        println("LINE83: FallAlert - inside sendSMS value of contact is $contact")
-
         // CHECK PERMISSIONS...
         // CHECK PERMS FOR SEND SMS
         if (!EasyPermissions.hasPermissions(
-                this,
+                this@FallAlert,
                 android.Manifest.permission.SEND_SMS
             )
         ) {
             EasyPermissions.requestPermissions(
-                this,
+                this@FallAlert,
                 "You need to accept location permissions to use this app.",
                 REQUEST_SMS_PERMISSION,
                 android.Manifest.permission.SEND_SMS
@@ -201,16 +269,94 @@ class FallAlert: AppCompatActivity() {
             println("permissions are granted...sending the sms...in the send sms function")
             // IF GRANTED, SEND THE MESSAGE
             val version = Build.VERSION.SDK_INT
+
+            // IF ANDROID VERSION 12 OR ABOVE DO THE FOLLOWING
             println("LINE180: FallAlert - version is $version ")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
                 println("LINE181 - FallAlert - inside the SendSms and android 31 or above ")
-                val manager = context.getSystemService(SmsManager::class.java)
-                manager.sendTextMessage(contact, null, message, null, null)
+
+                val manager = this@FallAlert.getSystemService(SmsManager::class.java)
+
+                if (contact != null) {
+                    manager.sendTextMessage(contact, null, message, null, null)
+
+                } else {
+                    println("The emergency contact field is empty.....")
+                    Log.d(TAG, "The emergency contact field is empty.....")
+                }
+//                manager.sendTextMessage(contact, null, message, null, null)
             } else {
+
+                // IF ANDROID VERSION 11 OR BELOW, DO THE FOLLOWING
                 println("LINE185 - FallAlert - inside the SendSms and android 30 and below")
-                val manager = SmsManager.getDefault()
-                manager.sendTextMessage(contact, null, message, null, null)
+                //val manager = SmsManager.getDefault()
+
+                val sentPI = PendingIntent.getBroadcast(
+                    this, 0, Intent(Sent), 0
+                )
+
+                val deliveredPI = PendingIntent.getBroadcast(
+                    this, 0, Intent(Delivered), 0
+                )
+
+                // WHEN THE SMS HAS BEEN SENT
+                val br: BroadcastReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(arg0: Context?, arg1: Intent?) {
+                        when (resultCode) {
+                            RESULT_OK -> Log.d(TAG, "Send Message Result Code OK")
+                            SmsManager.RESULT_ERROR_GENERIC_FAILURE -> Log.d(
+                                TAG,
+                                "Send Message Result Generic Failure"
+                            )
+                            SmsManager.RESULT_ERROR_NO_SERVICE -> Log.d(
+                                TAG,
+                                "Send Message Result Code No Service"
+                            )
+                            SmsManager.RESULT_ERROR_NULL_PDU -> Log.d(
+                                TAG,
+                                "Send Message Result Code Null PDU"
+                            )
+                            SmsManager.RESULT_ERROR_RADIO_OFF -> Log.d(
+                                TAG,
+                                "Send Message Result Code Radio Off"
+                            )
+                        }
+                        unregisterReceiver(this)
+                    }
+                }
+                registerReceiver(br, IntentFilter(Sent))
+
+                //  WHEN THE SMS HAS BEEN DELIVERED
+                val br2: BroadcastReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(arg0: Context?, arg1: Intent?) {
+                        when (resultCode) {
+                            RESULT_OK -> Log.d(TAG, "Delivered Message Result OK")
+                            RESULT_CANCELED -> Log.d(TAG, "Send Message Result Result Canceled")
+                        }
+                        unregisterReceiver(this)
+                    }
+                }
+                registerReceiver(br2, IntentFilter(Delivered))
+
+                val sms: SmsManager = SmsManager.getDefault()
+                sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
             }
+
+//
+//                if(contact != null){
+//                    println("Contact is not empty..old version value is : $contact")
+//                    manager.sendTextMessage(contact, null, message, null, null)
+//
+//                }else{
+//                    println("Old version...it's empty: $contact")
+//
+//                }
+////                manager.sendTextMessage(contact, null, message, null, null)
+//            }
+//
+//        }
+//    }
 
         }
     }
