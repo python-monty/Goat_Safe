@@ -81,7 +81,6 @@
         android:text="@string/button_not_okay"
         app:layout_constraintStart_toEndOf="@id/filler"
         app:layout_constraintEnd_toEndOf="parent"
-
         app:layout_constraintTop_toBottomOf="@id/er_icon"
         android:textColor="@color/black"
         android:backgroundTint="#FA0000" />

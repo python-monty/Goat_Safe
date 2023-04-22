@@ -37,7 +37,14 @@
     <string name="medical_conditions_hint">Enter Users Medical Conditions</string>
     <string name="medical_provider_name_hint">Enter Users Doctor Name</string>
     <string name="medical_provider_phone_hint">Enter Users Doctor Phone#</string>
-
+    <string name="acc_all_values">Accelerometer : x is %1$s, y is %2$s, z is %3$s</string>
+    <string name="acc_value_text">Accelerometer Value :</string>
+    <string name="acc_value">%1$s</string>
+    <string name="acc_value_default">0</string>
+    <string name="m_accel">mAccel :\n %1$s</string>
+    <string name="recovery_timer_text">Recovery Timer : </string>
+    <string name="timer">%1$s</string>
+    <string name="timer_default">0</string>
 
 
 

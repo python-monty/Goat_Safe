@@ -22,10 +22,14 @@ class DataViewModel: ViewModel() {
     val userID = MutableLiveData<String>().apply{
         value = null
     }
-//
-//    val MapsContext = MutableLiveData<Context>().apply{
-//        value = null
-//    }
+
+    val userName = MutableLiveData<String>().apply{
+        value = null
+    }
+    val erContact = MutableLiveData<String>().apply{
+        value = null
+    }
+
 
 
 

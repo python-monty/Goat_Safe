@@ -26,7 +26,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
     //private var TAG: String = "GeofenceHelper"
     private var pendingIntent: PendingIntent? = null
     private val GEO_REQUEST_CODE: Int = 20001
-    var intentExtras: String? = null
+//    var intentExtras: String? = null
 
 
     fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
@@ -57,7 +57,7 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         }
 
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        intent.putExtra("userID",intentExtras)
+//        intent.putExtra("userID",intentExtras)
 
 
         if(Build.VERSION.SDK_INT >= 31) {
@@ -94,23 +94,23 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         return e.localizedMessage
     }
 
-    fun setExtra(uid: String){
-        println("value of uid inside geofencehelp/setextra is :$uid")
-
-        intentExtras = uid
-
-    }
-
-    fun printExtra(){
-        println("Value printed from extras using the geohelper print function is : $intentExtras")
-
-    }
-
-    fun getExtra(): String? {
-        println("Value printed from extras using the geohelper print function is : $intentExtras")
-        return intentExtras
-
-    }
+//    fun setExtra(uid: String){
+//        println("value of uid inside geofencehelp/setextra is :$uid")
+//
+//        intentExtras = uid
+//
+//    }
+//
+//    fun printExtra(){
+//        println("Value printed from extras using the geohelper print function is : $intentExtras")
+//
+//    }
+//
+//    fun getExtra(): String? {
+//        println("Value printed from extras using the geohelper print function is : $intentExtras")
+//        return intentExtras
+//
+//    }
 
     companion object {
         private const val TAG = "GeofenceHelper"

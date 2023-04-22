@@ -1,21 +1,25 @@
 package com.cs523.android.means_v2
 
+
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -29,16 +33,23 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.IOException
+import java.text.DecimalFormat
+import java.util.*
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 private const val TAG = "MapsActivity"
 
 var dataViewModel: ViewModel = DataViewModel()
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.PermissionCallbacks {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
+    EasyPermissions.PermissionCallbacks, SensorEventListener{
 
     private lateinit var mMap: GoogleMap
 
@@ -65,11 +76,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
     // TOGGLE SWITCH OBJECT
     private lateinit var enableLocationSwitch: SwitchMaterial
 
-    private lateinit var tempButton: Button
+//    private lateinit var tempButton: Button
+//
+//    private lateinit var erContact: String
+//
+//    private lateinit var userName: String
 
-    private var contact: String = "6178774893"
 
-    private var message: String = "test message text..."
+//
+//    private var message: String = "test message text..."
 
     private lateinit var geofencingClient: GeofencingClient
 
@@ -103,6 +118,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
     // VAR FOR GEOCODING/REVERSE GEOCODING OF THE CURRENT LOCATION
     private var currentStreetAddress: String? = null
 
+    // VARS FOR THE FALL DETECTION
+    private lateinit var sensorManager : SensorManager
+    private var accelerometer: Sensor? = null
+    private var accelerationReaderPast : Float = SensorManager.GRAVITY_EARTH
+    private var accelerationReader : Float = SensorManager.GRAVITY_EARTH
+    private var mAccel: Float = 0.0F
+    private var movementStart: Long = 0
+    private val mTimer = Timer()
+
 
 
 //    private var phone: String = "6178774893"
@@ -125,15 +149,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         userEmail = intent.getStringExtra("email").toString()
         userPassword = intent.getStringExtra("password").toString()
 
-
-        // CALL TO UPDATE THE VIEWMODEL WITH USER ID
-        updateViewModel(userID, dataViewModel as DataViewModel)
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used. (moved to onrequestpermissions returned
-//        val mapFragment = supportFragmentManager
-//            .findFragmentById(R.id.map) as SupportMapFragment
-//        mapFragment.getMapAsync(this)
-
+        // RETRIEVE USERS DATA IN THE FIREBASE DATABASE (USERNAME AND ER CONTACT)
+        getFirebaseData(userID)
 
         //INIT THE GEOCODER FOR LAT/LONG TO ADDRESS AND BACK MAPPING
         geoCoder = Geocoder(this)
@@ -158,12 +175,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 
 
         //////////////////////////////////////////////
-        geofenceHelper.setExtra(userID)
+//        geofenceHelper.setExtra(userID)
 
 
-        var uidfromhelper = geofenceHelper.getExtra()
-
-        println("value of extra stored in uidfromhelper is : $uidfromhelper")
+//        var uidfromhelper = geofenceHelper.getExtra()
+//
+//        println("value of extra stored in uidfromhelper is : $uidfromhelper")
 ///////////////////////////////////////////////////////////////////////////////
 
         // INIT THE LISTENER FOR THE TOGGLE SWITCH
@@ -189,32 +206,304 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         //<<<< START OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>//
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
         // INIT THE ONCLICKLISTENER FOR THE CHECK ADDRESS BUTTON
-        tempButton = findViewById(R.id.temp_button)
+//        tempButton = findViewById(R.id.temp_button)
+//
+//        // WHEN THE BUTTON CLICKED...
+//        tempButton.setOnClickListener {
 
-        // WHEN THE BUTTON CLICKED...
-        tempButton.setOnClickListener {
+//            // CHECK PERMS FOR FINE LOCATION FOR LIVE UPDATES
+//            if (!EasyPermissions.hasPermissions(
+//                    this,
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                    android.Manifest.permission.SEND_SMS
+//                )
+//            ) {
+//                EasyPermissions.requestPermissions(
+//                    this,
+//                    "You need to accept location permissions to use this app.more than Q",
+//                    REQUEST_FINE_AND_SMS_PERMISSION,
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                    android.Manifest.permission.SEND_SMS
+//                )
+//                EasyPermissions.requestPermissions(
+//                    this,
+//                    "You need to accept location permissions to use this app.more than Q",
+//                    REQUEST_BACKGROUND_PERMISSION,
+//                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//                )
+//                return@setOnClickListener
+//            } else {
+//                Log.d(TAG, "Fine location and SMS already granted")
+//
+//                // ATTEMPT GEOCODE (OBTAIN CURRENT ADDRESS OF LOCATION).
+//                // IF NO INTERNET, CATCH IOEXCEPTION AND PROVIDE TOAST MESSAGE
+//                var currentLocationTask: Task<Location> = fusedLocationProviderClient.lastLocation
+//
+//                // IF SUCCESSFUL IN GETTING THE LAST LOCATION...
+//                currentLocationTask.addOnSuccessListener { currentLocation ->
+//                    var currentLatLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+//
+//                    // TRY STATEMENT TO CONVERT THE CURRENTLOCATION (LAT/LONG) INTO A STREET ADDRESS
+//                    try {
+//                        var currentAddresses: List<Address> =
+//                            geoCoder.getFromLocation(
+//                                currentLatLng.latitude,
+//                                currentLocation.longitude,
+//                                1
+//                            ) as List<Address>
+//                        // TAKE THE FIRST ITEM IN THE LIST OF ADDRESSES
+//                        val currentAddress: Address = currentAddresses[0]
+//
+//                        // TAKE THE ADDRESS LINE OF THAT OBJECT AND COVER TO STRING(FROM ADDRESS OBJECT)
+//                        currentStreetAddress = currentAddress.getAddressLine(0).toString()
+//
+////                        //ER ENTRY NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
+////                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
+////                        erIntent = Intent(this, erAlert::class.java)
+////
+////                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
+////                        erIntent.putExtra("address", currentStreetAddress)
+////
+////                        // CALL THE ER ALERT ACTIVITY
+////                        startActivity(erIntent)
+////
+////
+//                        //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
+//                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
+//                        fallIntent = Intent(this, FallAlert::class.java)
+//
+//                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
+//                        fallIntent.putExtra("address", currentStreetAddress)
+//
+//                        // CALL THE ER ALERT ACTIVITY
+//                        startActivity(fallIntent)
+////                        sendSms(this, contact, message)
+//
+//                    } catch (e: IOException) {
+//                        Toast.makeText(this, "IOException: No Internet access", Toast.LENGTH_LONG)
+//                            .show()
+//                    }
+//                }
+//
+//            }
+//        }
+        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+        //<<<<<< END OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>>>>//
+        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+
+// START OF FALL DETECTION CODE
+    // SET UP THE FALL DETECTION SENSOR
+    setupSensor()
+
+    }
+
+    // GET USER FIREBASE DATABASE INFORMATION AND SEND TO THE VIEWMODEL
+    private fun getFirebaseData(userID: String) {
+        val db = Firebase.firestore
+
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+
+                for (document in result) {
+
+                    if (document.id == userID) {
+
+                        val uidData = document.data
+
+                        // FILTER THE USERS PROFILE BASED ON THE USERERCONTACTPHONE STRING
+                        // GET THE EMERGENCY CONTACT PHONE NUMBER VALUE FROM THAT KEY
+                        var rawPhone =
+                            uidData.filterKeys { it == "UserErContactPhone" }.values.toString()
+                        // DROP THE LEADING SQUARE BRACKET
+                        var partialPhone = rawPhone.drop(1)
+                        /// DROP THE TRAILING SQUARE BRACKET
+                        var erContact = partialPhone.dropLast(1)
+
+
+                        // GET THE USERNAME OF CURRENT USER
+                        var rawName =
+                            uidData.filterKeys { it == "UserName" }.values.toString()
+                        // DROP THE LEADING SQUARE BRACKET
+                        var partialName = rawName.drop(1)
+                        /// DROP THE TRAILING SQUARE BRACKET
+                        var userName = partialName.dropLast(1)
+
+//                        // GET ALL THE KEYS FROM THE USERS PROFILE HASHMAP
+//                        println("here are the hashmap keys: ${uidData.keys}")
+                        // GET ALL THE VALUES FROM THE USERS PROFILE HASHMAP
+//                        println("here are the hashmap values: ${uidData.values}")
+//                        var pattern = Regex("(UserErContactPhone=){1}[0-9]{10}")
+//                        var result = pattern.containsMatchIn(uidData.toString())
+//                        println("here is the regex result $result")
+
+                        Log.d(TAG, "Here is the users data: ${document.data}")
+                        Log.d(TAG, "Here is the users er contact: $erContact")
+                        Log.d(TAG, "Here is the users name: $userName")
+
+                        // CALL THE UPDATE VIEWMODEL FUNCTION WITH USER ID, USERNAME AND ER CONTACT
+                        updateViewModel(userID, userName, erContact, dataViewModel as DataViewModel)
+
+                    }
+//                    Log.d(TAG, "${document.id} => ${document.data}")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+
+            }
+
+
+        // CALL THE UPDATE VIEWMODEL FUNCTION WITH USER ID, USERNAME AND ER CONTACT
+//        updateViewModel(userID, userName, erContact, dataViewModel as DataViewModel)
+//
+//        userName?.let {
+//            erContact?.let { it1 ->
+//                updateViewModel(
+//                    userID, it,
+//                    it1, dataViewModel as DataViewModel
+//                )
+//            }
+//        }
+    }
+
+    // SET UP SENSOR FUNCTION
+    private fun setupSensor() {
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+
+        //register accelerometer
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        accelerometer?.also {
+            sensorManager.registerListener(this@MapsActivity,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL,
+                SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        when (event?.sensor?.type) {
+            Sensor.TYPE_ACCELEROMETER -> {
+                movementStart = System.currentTimeMillis()
+
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                accelerationReaderPast = accelerationReader
+
+                accelerationReader = sqrt(x.toDouble().pow(2.0) + y.toDouble()
+                    .pow(2.0) + z.toDouble().pow(2.0))
+                    .toFloat()
+
+                if(accelerationReader<0.5){
+
+                    Log.d("FreeFall", accelerationReader.toString())
+
+//                    Toast.makeText(this@MapsActivity,"free fall",Toast.LENGTH_SHORT).show()
+
+                    mTimer.schedule(object : TimerTask() {
+                        //start after 2 second delay to make acceleration values "rest"
+                        override fun run() {
+                            firstTimer.start()
+                            //Toast.makeText(this@MapsActivity,"free fall",Toast.LENGTH_SHORT).show()
+
+                        }
+                    }, 2000)
+                }
+
+                val precision = DecimalFormat("0.00")
+                val ldAccRound = java.lang.Double.parseDouble(precision.format(accelerationReader))
+
+                // UPDATE THE UI WITH A LIVE REPORTING OF THE CURRENT ACCELEROMETER VALUES
+                binding.allTheNumbers.text = getString(R.string.acc_value, ldAccRound.toString())
+
+    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
+                //ldAccRound > 0.3 && ldAccRound < 1.2   0.3<ldAccRound<1.2
+
+                /*if(ldAccRound>0.3 && ldAccRound < 1.2 && (movementStart - lastMovementFall) > 8000){
+                    lastMovementFall = System.currentTimeMillis()
+                    Toast.makeText(this,"Fall Detected",Toast.LENGTH_SHORT).show()
+                }
+                 */
+
+                /*
+                val delta: Float = accelerationReader - accelerationReaderPast
+                mAccel = mAccel * 0.9f + delta
+                mAccel = abs(mAccel)
+
+                //binding.allTheOtherNumbers.text = getString(R.string.m_accel, mAccel.toString())
+
+                if(mAccel>5.0f){
+                    Toast.makeText(this,"Exceeded the acceleration, starting timer of 40s",Toast.LENGTH_SHORT).show()
+                    Log.d("exceed",mAccel.toString())
+                    mTimer.schedule(object : TimerTask() {
+                        //start after 2 second delay to make acceleration values "rest"
+                        override fun run() {
+                            firstTimer.start()
+                        }
+                    }, 2000)
+                }*/
+    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
+
+            }
+        }
+    }
+
+
+    // SET UP THE RECOVERY TIMER
+    var firstTimer: CountDownTimer = object : CountDownTimer(30*1000, 1000) {
+
+        //recovery timer
+        override fun onTick(millisUntilFinished: Long) {
+            //if there is movement before 30 seconds, cancel the timer
+            val ms1 = millisUntilFinished/1000
+
+            // UPDATED THE UI WITH THE COUNTDOWN UNTIL ALERT IS SENT.  IF USER HAS NOT MOVED
+            // AT THE END OF 30 SECS, THE EVENT IS RECOGNIZED AS A FALL
+            binding.allTheOtherNumbers.text = getString(R.string.timer , ms1.toString())
+
+    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
+            //if (mAccel > 2.0f) {
+    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
+
+            if(accelerationReader>10.0f){
+//                val toast = Toast.makeText(
+//                    applicationContext,
+//                    "You moved.", Toast.LENGTH_SHORT
+//                )
+//                toast.show()
+                binding.allTheOtherNumbers.text = getString(R.string.timer_default)
+                Log.d("Moved", accelerationReader.toString())
+
+                // CANCEL THE RECOVERY TIMER
+                cancel()
+            }
+        }
+
+        // WHEN THE RECOVERY TIMER EXPIRES, CALL THE FALL ALERT ACTIVITY
+        @SuppressLint("MissingPermission")
+        override fun onFinish() {
 
             // CHECK PERMS FOR FINE LOCATION FOR LIVE UPDATES
             if (!EasyPermissions.hasPermissions(
-                    this,
+                    this@MapsActivity,
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.SEND_SMS
-                )
-            ) {
+                    android.Manifest.permission.SEND_SMS))
+            {
                 EasyPermissions.requestPermissions(
-                    this,
+                    this@MapsActivity,
                     "You need to accept location permissions to use this app.more than Q",
                     REQUEST_FINE_AND_SMS_PERMISSION,
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.SEND_SMS
-                )
+                    android.Manifest.permission.SEND_SMS)
                 EasyPermissions.requestPermissions(
-                    this,
+                    this@MapsActivity,
                     "You need to accept location permissions to use this app.more than Q",
                     REQUEST_BACKGROUND_PERMISSION,
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                )
-                return@setOnClickListener
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                return
             } else {
                 Log.d(TAG, "Fine location and SMS already granted")
 
@@ -237,23 +526,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
                         // TAKE THE FIRST ITEM IN THE LIST OF ADDRESSES
                         val currentAddress: Address = currentAddresses[0]
 
-                        // TAKE THE ADDRESS LINE OF THAT OBJECT AND COVER TO STRING(FROM ADDRESS OBJECT)
+                        // TAKE THE ADDRESS LINE OF THAT OBJECT AND CONVERT TO STRING(FROM ADDRESS OBJECT)
                         currentStreetAddress = currentAddress.getAddressLine(0).toString()
 
-//                        //ER ENTRY NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
-//                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-//                        erIntent = Intent(this, erAlert::class.java)
-//
-//                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
-//                        erIntent.putExtra("address", currentStreetAddress)
-//
-//                        // CALL THE ER ALERT ACTIVITY
-//                        startActivity(erIntent)
-//
-//
                         //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
                         // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-                        fallIntent = Intent(this, FallAlert::class.java)
+                        fallIntent = Intent(this@MapsActivity, FallAlert::class.java)
 
                         // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
                         fallIntent.putExtra("address", currentStreetAddress)
@@ -263,26 +541,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
 //                        sendSms(this, contact, message)
 
                     } catch (e: IOException) {
-                        Toast.makeText(this, "IOException: No Internet access", Toast.LENGTH_LONG)
+                        Toast.makeText(this@MapsActivity, "IOException: No Internet access", Toast.LENGTH_LONG)
                             .show()
                     }
                 }
 
             }
+
+            Toast.makeText(applicationContext, "Fall Detected!!", Toast.LENGTH_SHORT)
+                .show()
+            cancel()
+
+    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
+            //secondTimer.start()
+    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
+
         }
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-        //<<<<<< END OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>>>>//
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 
+    }
 
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        return
     }
 
     // CREATE THE OPTIONS MENU AT THE TOP OF THE ACTIVITY
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        var inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.options_menu,menu)
-        return true
-    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
@@ -305,7 +588,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             else -> super.onOptionsItemSelected(item)
         }
     }
+///////////////////
+/////////////////// END OF FALL DETECTION CODE
+///////////////////
 
+
+    //CREATE THE OPTIONS MENU
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        var inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.options_menu,menu)
+        return true
+    }
 
     // GENERATE THE GOOGLE MAP AND IT'S SETTINGS
     override fun onMapReady(googleMap: GoogleMap) {
@@ -422,11 +715,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
         mMap.isMyLocationEnabled = true
     }
 
-    // UPDATE THE UI WITH THE CURRENT ADDRESS LOCATION OF THE USER
-    fun updateMapAddress(address: String){
-        var mapAddressText: TextView = findViewById(R.id.current_location)
-        mapAddressText.text = address
-    }
+//    // UPDATE THE UI WITH THE CURRENT ADDRESS LOCATION OF THE USER
+//    fun updateMapAddress(address: String){
+//        var mapAddressText: TextView = findViewById(R.id.current_location)
+//        mapAddressText.text = address
+//    }
 //
 //    // SEND SMS MESSAGE  <<<<<  MOVED TO THE ERALERT ACTIVITY >>>>>>>>>
 //    fun sendSms(context: Context, contact: String?, message: String) {
@@ -535,11 +828,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
             Log.d(TAG, "Background Location Permission is already granted")
 
             // WPI GEOFENCE SETTINGS
-            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
+//            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
 
             // TESTING GEOFENCE SETTINGS
 //            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
-//            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
+            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
 
                 Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL
             )
@@ -669,11 +962,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,  EasyPermissions.P
     }
 
     // UPDATE THE VIEWMODEL WITH THE CURRENT USERS UID
-    fun updateViewModel(UID: String, dataViewModel: DataViewModel){
-        dataViewModel.userID.value = UID
-//        dataViewModel.MapsContext.value = this
+    fun updateViewModel(UID: String, userName: String, erContact: String, dataViewModel: DataViewModel){
 
-        println("Value of the Intent while in MapsActivity is $this")
+        println("values of UID, userName and erContact in the updateviewmodel function: " +
+                "$UID\n$userName\n$erContact")
+
+
+        dataViewModel.userID.value = UID
+        dataViewModel.userName.value = userName
+        dataViewModel.erContact.value = erContact
 
     }
+
+    override fun onDestroy(){
+        sensorManager.unregisterListener(this)
+        super.onDestroy()
+    }
+
+
+
 }

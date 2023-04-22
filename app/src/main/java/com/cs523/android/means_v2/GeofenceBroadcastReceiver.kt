@@ -28,7 +28,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     //private lateinit var erIntent: Intent
 
     private var wpiClinic:LatLng = LatLng(42.27324,-71.8100491)
-    private var wpiLocationText: String = "<User> has entered a medical treatment center:\nWPI Heath Clinic"
+    private var locationText: String = "WPI Health Clinic"
 
 
     @SuppressLint("MissingPermission")
@@ -65,20 +65,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         erIntent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         erIntent!!.putExtra("address", currentStreetAddress)
-        erIntent!!.putExtra("text", wpiLocationText)
+        erIntent!!.putExtra("text", locationText)
 
 
         var geoFencingEvent: GeofencingEvent? = GeofencingEvent.fromIntent(intent)
-
-
-
-        println("geoFencingEvent data: $geoFencingEvent")
-
-        var stringversion = geoFencingEvent.toString()
-
-        println("geoFencingEvent string data: $stringversion")
-
-//        var geoFencingEvent: object = GeofencingEvent.fromIntent(intent)
 
 
         if (geoFencingEvent != null) {
