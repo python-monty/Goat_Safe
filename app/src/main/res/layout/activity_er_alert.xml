@@ -1,121 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/grey">>
-
-    <TextView
-        android:id="@+id/app_title"
-        style="@style/AppText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/app_name"
-        android:textAlignment="center"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/er_message"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:fillViewport="true"
+    android:background="@color/grey"
+    tools:context=".erAlert">
 
 
-    <TextView
-        android:id="@+id/er_message"
-        style="@style/AppText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="544dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/er_detected"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/app_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/grey">
 
-    <ImageView
-        android:id="@+id/er_icon"
-        android:layout_width="358dp"
-        android:layout_height="283dp"
-        android:layout_marginStart="26dp"
-        android:layout_marginEnd="27dp"
-        app:layout_constraintBottom_toTopOf="@+id/okay_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/er_message"
-        app:srcCompat="@drawable/emergency_icon"/>
-
-    <Button
-        android:id="@+id/okay_button"
-        android:layout_width="160dp"
-        android:layout_height="80dp"
-        android:text="@string/button_okay"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/filler"
-        app:layout_constraintTop_toBottomOf="@id/er_icon"
-        android:textColor="@color/black"
-        android:backgroundTint="#05F60F"
-        android:height="60dp"
-        android:width="120dp"/>
-
-    <View
-        android:id="@+id/filler"
-        android:layout_width="20dp"
-        android:layout_height="60dp"
-        app:layout_constraintStart_toEndOf="@+id/okay_button"
-        app:layout_constraintEnd_toStartOf="@+id/not_okay_button"
-        app:layout_constraintTop_toBottomOf="@id/er_icon"
-        app:layout_constraintBottom_toTopOf="@id/timer_text"/>
-
-    <Button
-        android:id="@+id/not_okay_button"
-        android:layout_width="160dp"
-        android:layout_height="80dp"
-        android:text="@string/button_not_okay"
-        app:layout_constraintStart_toEndOf="@id/filler"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/er_icon"
-        android:textColor="@color/black"
-        android:backgroundTint="#FA0000" />
-
-    <TextView
-        android:id="@+id/timer_text"
-        style="@style/AppText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="544dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/timer_text"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/okay_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/timer"/>
-
-    <TextView
-        android:id="@+id/timer"
-        style="@style/AppText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/timer_secs"
-        android:textAlignment="center"
-        android:textSize="60sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/timer_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/app_title"
+            style="@style/AppText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/er_message"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/er_message"
+            style="@style/AppText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="544dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="@string/er_detected"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/app_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/er_icon"
+            android:layout_width="358dp"
+            android:layout_height="283dp"
+            android:layout_marginStart="26dp"
+            android:layout_marginEnd="27dp"
+            app:layout_constraintBottom_toTopOf="@+id/okay_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/er_message"
+            app:srcCompat="@drawable/emergency_icon"/>
+
+        <Button
+            android:id="@+id/okay_button"
+            android:layout_width="160dp"
+            android:layout_height="80dp"
+            android:text="@string/button_okay"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/filler"
+            app:layout_constraintTop_toBottomOf="@id/er_icon"
+            android:textColor="@color/black"
+            android:backgroundTint="#05F60F"
+            android:height="60dp"
+            android:width="120dp"/>
+
+        <View
+            android:id="@+id/filler"
+            android:layout_width="20dp"
+            android:layout_height="60dp"
+            app:layout_constraintStart_toEndOf="@+id/okay_button"
+            app:layout_constraintEnd_toStartOf="@+id/not_okay_button"
+            app:layout_constraintTop_toBottomOf="@id/er_icon"
+            app:layout_constraintBottom_toTopOf="@id/timer_text"/>
+
+        <Button
+            android:id="@+id/not_okay_button"
+            android:layout_width="160dp"
+            android:layout_height="80dp"
+            android:text="@string/button_not_okay"
+            app:layout_constraintStart_toEndOf="@id/filler"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/er_icon"
+            android:textColor="@color/black"
+            android:backgroundTint="#FA0000" />
+
+        <TextView
+            android:id="@+id/timer_text"
+            style="@style/AppText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="544dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="@string/timer_text"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/okay_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/timer"/>
+
+        <TextView
+            android:id="@+id/timer"
+            style="@style/AppText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="@string/timer_secs"
+            android:textAlignment="center"
+            android:textSize="60sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/timer_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
