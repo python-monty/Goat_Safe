@@ -33,7 +33,7 @@
 
         </activity>
         <activity
-            android:name=".QrCode"
+            android:name=".qrCode"
             android:exported="false" />
         <activity
             android:name=".erAlert"

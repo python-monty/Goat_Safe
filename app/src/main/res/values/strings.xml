@@ -13,7 +13,7 @@
     <string name="button_not_okay">NOT OKAY!</string>
     <string name="timer_text">SECONDS UNTIL EMERGENCY CONTACT</string>
     <string name="timer_secs">60</string>
-    <string name="qr_code_text">Scan the QR code for Users medical info.</string>
+    <string name="qr_code_text">User Health Info\n (Scan QR Code).</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="login">Login</string>

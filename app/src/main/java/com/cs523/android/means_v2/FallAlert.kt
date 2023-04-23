@@ -22,19 +22,11 @@ import androidx.lifecycle.Observer
 import com.cs523.android.means_v2.databinding.ActivityFallAlertBinding
 import pub.devrel.easypermissions.EasyPermissions
 
-// !!!!!!!!!!!!!!!  THIS CONTACT NEEDS TO ULTIMATELY COME FROM
-// !!!!!!!!!!!!!!! THE USERS SETTINGS ... IT IS A TEMP CARD CODED
-//private var contact: String = "6178774893"
-// !!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!
 
 private var TAG = "FallAlert"
 
 private var REQUEST_SMS_PERMISSION: Int = 10003
 
-//private val textView: TextView? = null
-
-//private lateinit var erBinding: ActivityErAlertBinding
 
 class FallAlert: AppCompatActivity() {
 
@@ -50,9 +42,6 @@ class FallAlert: AppCompatActivity() {
     // INIT VAR TO HOLD THE ADDRESS OF THE MEDICAL FACILITY
     private lateinit var textAddress: String
 
-    // INIT VAR TO HOLD TEXT MESSAGE STRING TO SEND TO EMERGENCY CONTACT
-//    private lateinit var textMessage: String
-
     // INIT VAR TO HOLD THE COUNTERTIMER OBJECT
     private lateinit var countDownTimer: CountDownTimer
 
@@ -63,6 +52,8 @@ class FallAlert: AppCompatActivity() {
     private var uName: String? = null
 
     private var erContact: String? = null
+
+    private lateinit var qrIntent: Intent
 
 
 
@@ -99,54 +90,6 @@ class FallAlert: AppCompatActivity() {
         })
 
 
-        // USE THE UID TO GET THE USERS EMERGENCY CONTACT FROM THE DATABASE
-        // INSTANTIATE THE FIREBASE CLOUD FIRESTORE DATABASE SERVICE
-//        val db = Firebase.firestore
-//
-//        // OBTAIN THE USER PROFILE DOCUMENT FROM THE DATABASE
-//        // BUT PULLING ALL THE USERS DOCUMENT FILE, THEN ITERATE TO
-//        // CHECK FOR THE USERS RECORD, FIND THE KEY MATCHING
-//        // USERERCONTACTPHONE AND PULL THE VALUE FROM THAT KEY
-//        // STORE IN CONTACT VARIABLE
-//        db.collection("users")
-//            .get()
-//            .addOnSuccessListener { result ->
-//
-//                for (document in result) {
-//
-//                    if (document.id == UID) {
-//
-//                        val uidData = document.data
-//
-//                        // FILTER THE USERS PROFILE BASED ON THE USERERCONTACTPHONE STRING
-//                        // GET THE EMERGENCY CONTACT PHONE NUMBER VALUE FROM THAT KEY
-//                        var rawPhone =
-//                            uidData.filterKeys { it == "UserErContactPhone" }.values.toString()
-//                        // DROP THE LEADING SQUARE BRACKET
-//                        var partialPhone = rawPhone.drop(1)
-//                        /// DROP THE TRAILING SQUARE BRACKET
-//                        contact = partialPhone.dropLast(1)
-//
-////                        // GET ALL THE KEYS FROM THE USERS PROFILE HASHMAP
-////                        println("here are the hashmap keys: ${uidData.keys}")
-//                        // GET ALL THE VALUES FROM THE USERS PROFILE HASHMAP
-////                        println("here are the hashmap values: ${uidData.values}")
-////                        var pattern = Regex("(UserErContactPhone=){1}[0-9]{10}")
-////                        var result = pattern.containsMatchIn(uidData.toString())
-////                        println("here is the regex result $result")
-//
-//                        Log.d(TAG, "Here is the users data: ${document.data}")
-//                        Log.d(TAG, "Here is the users er contact: $contact")
-//
-//                    }
-////                    Log.d(TAG, "${document.id} => ${document.data}")
-//                }
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.w(TAG, "Error getting documents.", exception)
-//
-//            }
-//
         // ATTACH THE VARS TO ELEMENTS IN THE LAYOUT
         timerText=findViewById(R.id.timer_text)
         timer=findViewById(R.id.timer)
@@ -156,19 +99,6 @@ class FallAlert: AppCompatActivity() {
 
         // MESSAGE ADDRESS REC'D THE INTENT EXTRAS
         textAddress = intent.getStringExtra("address").toString()
-
-        println("LINE83: FallAlert - value of textAddress is $textAddress")
-
-//        textMessage= "Test message...$erContact and $uName"
-////        textMessage ="$uName has fallen down and was unable to mark themselves are 'Okay'" +
-////                " in the Goat Safe app fall. Please check on $uName. At the time of the " +
-////                "fall, the user was located at $textAddress"
-
-//        println("LINE182: FallAlert - value of erContact is  $erContact")
-//
-//        println("LINE184: FallAlert - value of uName is  $uName")
-//
-//        println("LINE186: FallAlert - value of contact is $erContact")
 
 
         // SET UP THE COUNTDOWN TIMER - 60 SECONDS
@@ -185,9 +115,11 @@ class FallAlert: AppCompatActivity() {
                 sendSms(this@FallAlert, erContact)
                 alarm.stop()
 
+                callQR()
+
                 Toast.makeText(this@FallAlert, "onFinish : Sent message to $erContact", Toast.LENGTH_SHORT).show()
             }
-            // START THE TIMER
+        // START THE TIMER
         }.start()
 
 
@@ -201,6 +133,9 @@ class FallAlert: AppCompatActivity() {
             sendSms(this@FallAlert, erContact)
             countDownTimer.cancel()
             alarm.stop()
+
+            callQR()
+
             Toast.makeText(this@FallAlert,
                 "Sent message to $erContact\n\nUse your phone's " +
                         "back button to return to reset Goat Safe"
@@ -288,7 +223,6 @@ class FallAlert: AppCompatActivity() {
             // IF ANDROID VERSION 12 OR ABOVE DO THE FOLLOWING
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
-////////////////  NEW ADDITIONS BELOW ///////////////
                 val sentPI: ArrayList<PendingIntent> = ArrayList<PendingIntent>()
 
                 sentPI.add(PendingIntent.getBroadcast(
@@ -340,29 +274,19 @@ class FallAlert: AppCompatActivity() {
                 }
                 registerReceiver(br2, IntentFilter(Delivered))
 
-////////////////  NEW ADDITIONS ABOVE ////////////////
 
                 val manager = this@FallAlert.getSystemService(SmsManager::class.java)
 
-////////////////  NEW ADDITIONS BELOW ///////////////
                 if (contact != null) {
                     val smsParts: ArrayList<String> = manager.divideMessage(message)
-////////////////  NEW ADDITIONS ABOVE ////////////////
 
-//                sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
-
-////////////////  NEW ADDITIONS BELOW ////////////////
                     manager.sendMultipartTextMessage(
                         contact, null, smsParts, sentPI, deliveredPI)
-////////////////  NEW ADDITIONS ABOVE ////////////////
-
-//                    manager.sendTextMessage(contact, null, message, null, null)
 
                 } else {
                     println("The emergency contact field is empty.....")
                     Log.d(TAG, "The emergency contact field is empty.....")
                 }
-//                manager.sendTextMessage(contact, null, message, null, null)
             } else {
 
                 // IF ANDROID VERSION 11 OR BELOW, DO THE FOLLOWING
@@ -421,36 +345,27 @@ class FallAlert: AppCompatActivity() {
                 registerReceiver(br2, IntentFilter(Delivered))
 
                 val sms: SmsManager = SmsManager.getDefault()
-//
+
                 val smsParts: ArrayList<String> = sms.divideMessage(message)
 
-//                sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
                 sms.sendMultipartTextMessage(
                     contact, null, smsParts, sentPI, deliveredPI)
 
             }
 
-//
-//                if(contact != null){
-//                    println("Contact is not empty..old version value is : $contact")
-//                    manager.sendTextMessage(contact, null, message, null, null)
-//
-//                }else{
-//                    println("Old version...it's empty: $contact")
-//
-//                }
-////                manager.sendTextMessage(contact, null, message, null, null)
-//            }
-//
-//        }
-//    }
 
         }
     }
 
+    private fun callQR(){
 
+        //QR CODE NOTIFICATION....INITIATE AN INTENT USING THE QRCODE CLASS
+        // SET UP TO CALL QR ACTIVITY FROM THIS FALLALERT ACTIVITY
+        qrIntent = Intent(this@FallAlert, qrCode::class.java)
 
-
+        // CALL THE ER ALERT ACTIVITY
+        startActivity(qrIntent)
+    }
 }
 
 private fun SmsManager.sendMultipartTextMessage(contact: String?, nothing: Nothing?, smsParts: ArrayList<String>, sentPI: PendingIntent?, deliveredPI: PendingIntent?) {

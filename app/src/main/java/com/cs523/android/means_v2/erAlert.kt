@@ -27,13 +27,6 @@ private var TAG = "erAlert"
 
 private var REQUEST_SMS_PERMISSION: Int = 10002
 
-//private val textView: TextView? = null
-
-//private lateinit var erBinding: ActivityErAlertBinding
-
-
-
-
 class erAlert (): AppCompatActivity() {
 
     // INIT THE VAR TO HOLD THE TEXT ABOVE THE TIMER
@@ -64,6 +57,7 @@ class erAlert (): AppCompatActivity() {
 
     private lateinit var wpiText: String
 
+    private lateinit var qrIntent: Intent
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,54 +93,6 @@ class erAlert (): AppCompatActivity() {
         })
 
 
-        // USE THE UID TO GET THE USERS EMERGENCY CONTACT FROM THE DATABASE
-        // INSTANTIATE THE FIREBASE CLOUD FIRESTORE DATABASE SERVICE
-//        val db = Firebase.firestore
-//
-//        // OBTAIN THE USER PROFILE DOCUMENT FROM THE DATABASE
-//        // BUT PULLING ALL THE USERS DOCUMENT FILE, THEN ITERATE TO
-//        // CHECK FOR THE USERS RECORD, FIND THE KEY MATCHING
-//        // USERERCONTACTPHONE AND PULL THE VALUE FROM THAT KEY
-//        // STORE IN CONTACT VARIABLE
-//        db.collection("users")
-//            .get()
-//            .addOnSuccessListener { result ->
-//
-//                for (document in result) {
-//
-//                    if (document.id == UID) {
-//
-//                        val uidData = document.data
-//
-//                        // FILTER THE USERS PROFILE BASED ON THE USERERCONTACTPHONE STRING
-//                        // GET THE EMERGENCY CONTACT PHONE NUMBER VALUE FROM THAT KEY
-//                        var rawPhone =
-//                            uidData.filterKeys { it == "UserErContactPhone" }.values.toString()
-//                        // DROP THE LEADING SQUARE BRACKET
-//                        var partialPhone = rawPhone.drop(1)
-//                        /// DROP THE TRAILING SQUARE BRACKET
-//                        contact = partialPhone.dropLast(1)
-//
-////                        // GET ALL THE KEYS FROM THE USERS PROFILE HASHMAP
-////                        println("here are the hashmap keys: ${uidData.keys}")
-//                        // GET ALL THE VALUES FROM THE USERS PROFILE HASHMAP
-////                        println("here are the hashmap values: ${uidData.values}")
-////                        var pattern = Regex("(UserErContactPhone=){1}[0-9]{10}")
-////                        var result = pattern.containsMatchIn(uidData.toString())
-////                        println("here is the regex result $result")
-//
-//                        Log.d(TAG, "Here is the users data: ${document.data}")
-//                        Log.d(TAG, "Here is the users er contact: $contact")
-//
-//                    }
-////                    Log.d(TAG, "${document.id} => ${document.data}")
-//                }
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.w(TAG, "Error getting documents.", exception)
-//
-//            }
-//
         // ATTACH THE VARS TO ELEMENTS IN THE LAYOUT
         timerText = findViewById(R.id.timer_text)
         timer = findViewById(R.id.timer)
@@ -157,19 +103,6 @@ class erAlert (): AppCompatActivity() {
         // MESSAGE ADDRESS REC'D THE INTENT EXTRAS
         textAddress = intent.getStringExtra("address").toString()
         wpiText = intent.getStringExtra("text").toString()
-
-
-//        textMessage = "The Goat Safe phone app received notification from" +
-//                "the user. The user has entered a Medical Treatment Facility " +
-//                "and was unable to mark themselves as 'Okay' in the app. Please" +
-//                " check on the user. At the time of the notification, the user " +
-//                "was located at $textAddress"
-
-
-
-
-
-
 
         // SET UP THE COUNTDOWN TIMER - 60 SECONDS
         countDownTimer = object : CountDownTimer(10000, 1000) {
@@ -185,9 +118,11 @@ class erAlert (): AppCompatActivity() {
                 sendSms(this@erAlert, erContact)
                 alarm.stop()
 
+                callQR()
+
                 Toast.makeText(this@erAlert, "Sent message to $erContact", Toast.LENGTH_SHORT).show()
             }
-            // START THE TIMER
+        // START THE TIMER
         }.start()
 
 
@@ -197,10 +132,12 @@ class erAlert (): AppCompatActivity() {
         // SET UP A LISTENER FOR CLICKS OF THE NOT OKAY BUTTON, IF CLICKED
         // SEND SMS MESSAGE TO EMERGENCY CONTACT (TOAST MESSAGE TOO)
         notOkayButton.setOnClickListener {
-//            sendSms(this@erAlert, contact, textMessage)
             sendSms(this@erAlert, erContact)
             countDownTimer.cancel()
             alarm.stop()
+
+            callQR()
+
             Toast.makeText(this@erAlert,
                 "Sent message to $erContact\n\nUse your phone's " +
                         "back button to return to reset Goat Safe",
@@ -340,35 +277,24 @@ class erAlert (): AppCompatActivity() {
                 }
                 registerReceiver(br2, IntentFilter(Delivered))
 
-////////////////  NEW ADDITIONS ABOVE ////////////////
 
                 val manager = this@erAlert.getSystemService(SmsManager::class.java)
 
-////////////////  NEW ADDITIONS BELOW ///////////////
                 if (contact != null) {
                     val smsParts: ArrayList<String> = manager.divideMessage(message)
-////////////////  NEW ADDITIONS ABOVE ////////////////
 
-//                sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
 
-////////////////  NEW ADDITIONS BELOW ////////////////
                     manager.sendMultipartTextMessage(
                         contact, null, smsParts, sentPI, deliveredPI)
-////////////////  NEW ADDITIONS ABOVE ////////////////
 
-//                    manager.sendTextMessage(contact, null, message, null, null)
 
                 } else {
                     println("The emergency contact field is empty.....")
                     Log.d(TAG, "The emergency contact field is empty.....")
                 }
-//                manager.sendTextMessage(contact, null, message, null, null)
             } else {
 
                 // IF ANDROID VERSION 11 OR BELOW, DO THE FOLLOWING
-                println("LINE185 - FallAlert - inside the SendSms and android 30 and below")
-                //val manager = SmsManager.getDefault()
-
                 val sentPI: ArrayList<PendingIntent> = ArrayList<PendingIntent>()
 
                 sentPI.add(PendingIntent.getBroadcast(
@@ -428,23 +354,16 @@ class erAlert (): AppCompatActivity() {
                 sms.sendMultipartTextMessage(
                     contact, null, smsParts, sentPI, deliveredPI)
             }
-
-//
-//                if(contact != null){
-//                    println("Contact is not empty..old version value is : $contact")
-//                    manager.sendTextMessage(contact, null, message, null, null)
-//
-//                }else{
-//                    println("Old version...it's empty: $contact")
-//
-//                }
-////                manager.sendTextMessage(contact, null, message, null, null)
-//            }
-//
-//        }
-//    }
-
         }
+    }
+    private fun callQR(){
+
+        //QR CODE NOTIFICATION....INITIATE AN INTENT USING THE QRCODE CLASS
+        // SET UP TO CALL QR ACTIVITY FROM THIS FALLALERT ACTIVITY
+        qrIntent = Intent(this@erAlert, qrCode::class.java)
+
+        // CALL THE ER ALERT ACTIVITY
+        startActivity(qrIntent)
     }
 
 

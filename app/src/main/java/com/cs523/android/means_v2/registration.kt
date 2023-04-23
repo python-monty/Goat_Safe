@@ -94,12 +94,7 @@ class registration : AppCompatActivity() {
                             Log.d(TAG, "onFailure: user Profile is created for $userID")
                         }
 
-
-
                         val intent = Intent(this, login::class.java)
-
-
-
 
                         startActivity(intent)
                     }else{

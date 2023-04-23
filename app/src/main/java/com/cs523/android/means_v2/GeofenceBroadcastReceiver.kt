@@ -8,7 +8,6 @@ import android.location.Address
 import android.location.Geocoder
 import android.util.Log
 import android.widget.Toast
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.maps.model.LatLng
@@ -17,17 +16,14 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     private var TAG: String = "GeofenceBroadcastReceiver"
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
     private lateinit var geoCoder: Geocoder
 
     private var currentStreetAddress: String? = null
 
     private var erIntent: Intent? = null
 
-    //private lateinit var erIntent: Intent
-
     private var wpiClinic:LatLng = LatLng(42.27324,-71.8100491)
+
     private var locationText: String = "WPI Health Clinic"
 
 
@@ -37,15 +33,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         println("LINE18:GeofenceBcast - A geofence event was received....")
 
         geoCoder = Geocoder(context)
-//
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-//        println("value of fusedlocationprovider is $fusedLocationProviderClient")
-//
-//        var currentLocationTask: Task<Location> = fusedLocationProviderClient.lastLocation
-//
-//        println("current value of currentlocationtask is :$currentLocationTask")
-//
-//        currentLocationTask.addOnSuccessListener { currentLocation->
 
         var currentLatLng = LatLng(wpiClinic.latitude,wpiClinic.longitude)
 
@@ -86,6 +73,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
 
         when (transitionType) {
+
             // USE THE ENTER TRANSITION TRIGGER TEMPORARILY TO MORE EASILY TEST FUNCTIONALITY OF THE TRIGGERS
             // DISBLE THIS ONCE APP COMPLETE AND LEAVE ONLY THE TOAST MESSAGE FOR GEOFENCE ENTRY...THE DWELL
             // SHOULD BE THE TRIGGERING EVENT.

@@ -12,16 +12,11 @@ import com.cs523.android.means_v2.databinding.ActivityRegistration2Binding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-
 private const val TAG = "RegistrationActivity"
 
 class registration2 : AppCompatActivity() {
 
-
     private lateinit var auth: FirebaseAuth
-//    private lateinit var UserName: String
-//    private lateinit var UserEmail: String
-//    private lateinit var UserPassword: String
     private lateinit var UserPhone: String
     private lateinit var UserErContactPhone: String
     private lateinit var UserErContactName: String
@@ -30,7 +25,6 @@ class registration2 : AppCompatActivity() {
     private lateinit var UserMedicalProviderName: String
     private lateinit var UserMedicalProviderPhone: String
     private lateinit var UserID: String
-
 
     private lateinit var binding: ActivityRegistration2Binding
 
@@ -49,9 +43,6 @@ class registration2 : AppCompatActivity() {
         // REC THE UID OF THE LOGGED IN USER FROM THE MAPSACTIVITY INTENT
         // .PUTEXTRA
         UserID = intent.getStringExtra("UID").toString()
-//        UserEmail = intent.getStringExtra("email").toString()
-//        UserPassword = intent.getStringExtra("password").toString()
-
 
         binding.updateButton.setOnClickListener {
 
@@ -104,7 +95,6 @@ class registration2 : AppCompatActivity() {
                     .document(UserID)
                     .update("UserMedicalProviderPhone", UserMedicalProviderPhone)
             }
-
 
             val intent = Intent(this, login::class.java)
             startActivity(intent)

@@ -59,10 +59,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private lateinit var locationRequest: LocationRequest
 
-    private var REQUEST_FINE_LOCATION_PERMISSION: Int = 10001
-
-    private var REQUEST_SMS_PERMISSION: Int = 10002
-
     private var REQUEST_FINE_AND_SMS_PERMISSION: Int = 10003
 
     private var REQUEST_BACKGROUND_PERMISSION: Int = 10004
@@ -75,16 +71,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     // TOGGLE SWITCH OBJECT
     private lateinit var enableLocationSwitch: SwitchMaterial
-
-//    private lateinit var tempButton: Button
-//
-//    private lateinit var erContact: String
-//
-//    private lateinit var userName: String
-
-
-//
-//    private var message: String = "test message text..."
 
     private lateinit var geofencingClient: GeofencingClient
 
@@ -103,9 +89,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     // VARIABLE FOR THE GEOFENCE HELPER
     private lateinit var geofenceHelper: GeofenceHelper
-
-    // VAR TO HOLD THE ER ACTIVITY INTENT WHEN CALLED
-    //private lateinit var erIntent: Intent
 
     private lateinit var fallIntent: Intent
 
@@ -126,12 +109,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private var mAccel: Float = 0.0F
     private var movementStart: Long = 0
     private val mTimer = Timer()
-
-
-
-//    private var phone: String = "6178774893"
-
-//    private var message: String = "it worked"
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,16 +150,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         // INIT THE GEOFENCEHELPER CLASS
         geofenceHelper = GeofenceHelper(this)
 
-
-        //////////////////////////////////////////////
-//        geofenceHelper.setExtra(userID)
-
-
-//        var uidfromhelper = geofenceHelper.getExtra()
-//
-//        println("value of extra stored in uidfromhelper is : $uidfromhelper")
-///////////////////////////////////////////////////////////////////////////////
-
         // INIT THE LISTENER FOR THE TOGGLE SWITCH
         enableLocationSwitch = findViewById(R.id.switch1)
 
@@ -202,101 +169,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-        //<<<< START OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>//
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-        // INIT THE ONCLICKLISTENER FOR THE CHECK ADDRESS BUTTON
-//        tempButton = findViewById(R.id.temp_button)
-//
-//        // WHEN THE BUTTON CLICKED...
-//        tempButton.setOnClickListener {
-
-//            // CHECK PERMS FOR FINE LOCATION FOR LIVE UPDATES
-//            if (!EasyPermissions.hasPermissions(
-//                    this,
-//                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                    android.Manifest.permission.SEND_SMS
-//                )
-//            ) {
-//                EasyPermissions.requestPermissions(
-//                    this,
-//                    "You need to accept location permissions to use this app.more than Q",
-//                    REQUEST_FINE_AND_SMS_PERMISSION,
-//                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                    android.Manifest.permission.SEND_SMS
-//                )
-//                EasyPermissions.requestPermissions(
-//                    this,
-//                    "You need to accept location permissions to use this app.more than Q",
-//                    REQUEST_BACKGROUND_PERMISSION,
-//                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//                )
-//                return@setOnClickListener
-//            } else {
-//                Log.d(TAG, "Fine location and SMS already granted")
-//
-//                // ATTEMPT GEOCODE (OBTAIN CURRENT ADDRESS OF LOCATION).
-//                // IF NO INTERNET, CATCH IOEXCEPTION AND PROVIDE TOAST MESSAGE
-//                var currentLocationTask: Task<Location> = fusedLocationProviderClient.lastLocation
-//
-//                // IF SUCCESSFUL IN GETTING THE LAST LOCATION...
-//                currentLocationTask.addOnSuccessListener { currentLocation ->
-//                    var currentLatLng = LatLng(currentLocation.latitude, currentLocation.longitude)
-//
-//                    // TRY STATEMENT TO CONVERT THE CURRENTLOCATION (LAT/LONG) INTO A STREET ADDRESS
-//                    try {
-//                        var currentAddresses: List<Address> =
-//                            geoCoder.getFromLocation(
-//                                currentLatLng.latitude,
-//                                currentLocation.longitude,
-//                                1
-//                            ) as List<Address>
-//                        // TAKE THE FIRST ITEM IN THE LIST OF ADDRESSES
-//                        val currentAddress: Address = currentAddresses[0]
-//
-//                        // TAKE THE ADDRESS LINE OF THAT OBJECT AND COVER TO STRING(FROM ADDRESS OBJECT)
-//                        currentStreetAddress = currentAddress.getAddressLine(0).toString()
-//
-////                        //ER ENTRY NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
-////                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-////                        erIntent = Intent(this, erAlert::class.java)
-////
-////                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
-////                        erIntent.putExtra("address", currentStreetAddress)
-////
-////                        // CALL THE ER ALERT ACTIVITY
-////                        startActivity(erIntent)
-////
-////
-//                        //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
-//                        // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-//                        fallIntent = Intent(this, FallAlert::class.java)
-//
-//                        // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
-//                        fallIntent.putExtra("address", currentStreetAddress)
-//
-//                        // CALL THE ER ALERT ACTIVITY
-//                        startActivity(fallIntent)
-////                        sendSms(this, contact, message)
-//
-//                    } catch (e: IOException) {
-//                        Toast.makeText(this, "IOException: No Internet access", Toast.LENGTH_LONG)
-//                            .show()
-//                    }
-//                }
-//
-//            }
-//        }
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-        //<<<<<< END OF TEMPORARY ACTION (BUTTON CLICK) USED TO CALL ALL FUNCTIONS REQUIRED WHEN A FALL IS DETECTED>>>>>>>>//
-        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
-
 // START OF FALL DETECTION CODE
     // SET UP THE FALL DETECTION SENSOR
     setupSensor()
 
     }
-
     // GET USER FIREBASE DATABASE INFORMATION AND SEND TO THE VIEWMODEL
     private fun getFirebaseData(userID: String) {
         val db = Firebase.firestore
@@ -329,14 +206,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                         /// DROP THE TRAILING SQUARE BRACKET
                         var userName = partialName.dropLast(1)
 
-//                        // GET ALL THE KEYS FROM THE USERS PROFILE HASHMAP
-//                        println("here are the hashmap keys: ${uidData.keys}")
-                        // GET ALL THE VALUES FROM THE USERS PROFILE HASHMAP
-//                        println("here are the hashmap values: ${uidData.values}")
-//                        var pattern = Regex("(UserErContactPhone=){1}[0-9]{10}")
-//                        var result = pattern.containsMatchIn(uidData.toString())
-//                        println("here is the regex result $result")
-
                         Log.d(TAG, "Here is the users data: ${document.data}")
                         Log.d(TAG, "Here is the users er contact: $erContact")
                         Log.d(TAG, "Here is the users name: $userName")
@@ -353,18 +222,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
             }
 
-
-        // CALL THE UPDATE VIEWMODEL FUNCTION WITH USER ID, USERNAME AND ER CONTACT
-//        updateViewModel(userID, userName, erContact, dataViewModel as DataViewModel)
-//
-//        userName?.let {
-//            erContact?.let { it1 ->
-//                updateViewModel(
-//                    userID, it,
-//                    it1, dataViewModel as DataViewModel
-//                )
-//            }
-//        }
     }
 
     // SET UP SENSOR FUNCTION
@@ -419,34 +276,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 // UPDATE THE UI WITH A LIVE REPORTING OF THE CURRENT ACCELEROMETER VALUES
                 binding.allTheNumbers.text = getString(R.string.acc_value, ldAccRound.toString())
 
-    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
-                //ldAccRound > 0.3 && ldAccRound < 1.2   0.3<ldAccRound<1.2
-
-                /*if(ldAccRound>0.3 && ldAccRound < 1.2 && (movementStart - lastMovementFall) > 8000){
-                    lastMovementFall = System.currentTimeMillis()
-                    Toast.makeText(this,"Fall Detected",Toast.LENGTH_SHORT).show()
-                }
-                 */
-
-                /*
-                val delta: Float = accelerationReader - accelerationReaderPast
-                mAccel = mAccel * 0.9f + delta
-                mAccel = abs(mAccel)
-
-                //binding.allTheOtherNumbers.text = getString(R.string.m_accel, mAccel.toString())
-
-                if(mAccel>5.0f){
-                    Toast.makeText(this,"Exceeded the acceleration, starting timer of 40s",Toast.LENGTH_SHORT).show()
-                    Log.d("exceed",mAccel.toString())
-                    mTimer.schedule(object : TimerTask() {
-                        //start after 2 second delay to make acceleration values "rest"
-                        override fun run() {
-                            firstTimer.start()
-                        }
-                    }, 2000)
-                }*/
-    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
-
             }
         }
     }
@@ -464,16 +293,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             // AT THE END OF 30 SECS, THE EVENT IS RECOGNIZED AS A FALL
             binding.allTheOtherNumbers.text = getString(R.string.timer , ms1.toString())
 
-    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
-            //if (mAccel > 2.0f) {
-    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
-
             if(accelerationReader>10.0f){
-//                val toast = Toast.makeText(
-//                    applicationContext,
-//                    "You moved.", Toast.LENGTH_SHORT
-//                )
-//                toast.show()
+
                 binding.allTheOtherNumbers.text = getString(R.string.timer_default)
                 Log.d("Moved", accelerationReader.toString())
 
@@ -552,10 +373,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 .show()
             cancel()
 
-    //  BELOW IS UNUSED IN THE AKANKSHAS VERSION....
-            //secondTimer.start()
-    //  ABOVE IS UNUSED IN THE AKANKSHAS VERSION....
-
         }
 
     }
@@ -564,9 +381,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         return
     }
 
-    // CREATE THE OPTIONS MENU AT THE TOP OF THE ACTIVITY
-
-
+    // HANDLE WHEN USERS SELECTION MENU OPTIONS AT THE TOP OF THE ACTIVITY
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
             R.id.user_settings -> {
@@ -576,7 +391,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 intent.putExtra("email", userEmail)
                 intent.putExtra("password", userPassword)
                 startActivity(intent)
-                Toast.makeText(this, "Clicked user settings", Toast.LENGTH_SHORT).show()
                 true
             }
             R.id.sign_out ->{
@@ -588,10 +402,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             else -> super.onOptionsItemSelected(item)
         }
     }
-///////////////////
-/////////////////// END OF FALL DETECTION CODE
-///////////////////
-
 
     //CREATE THE OPTIONS MENU
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -695,10 +505,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         startLocationUpdates()
 
         // WPI GEOFENCE SETTINGS
-        addGeofence(wpiClinic,geofenceRadius )
+//        addGeofence(wpiClinic,geofenceRadius )
 
         // TESTING GEOFENCE SETTINGS
-//        addGeofence(home, geofenceRadius)
+        addGeofence(home, geofenceRadius)
 //        addGeofence(home2, geofenceRadius)
 
     }
@@ -714,98 +524,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun enableUserLocation() {
         mMap.isMyLocationEnabled = true
     }
-
-//    // UPDATE THE UI WITH THE CURRENT ADDRESS LOCATION OF THE USER
-//    fun updateMapAddress(address: String){
-//        var mapAddressText: TextView = findViewById(R.id.current_location)
-//        mapAddressText.text = address
-//    }
-//
-//    // SEND SMS MESSAGE  <<<<<  MOVED TO THE ERALERT ACTIVITY >>>>>>>>>
-//    fun sendSms(context: Context, contact: String?, message: String) {
-//        val Sent = "SMS_SENT"
-//
-//        val Delivered = "SMS_DELIVERED"
-//
-//
-//        // CHECK PERMISSIONS...
-//        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
-//        ) {
-//
-//            println("INSIDE Send sms...perms granted...sending message")
-//            // IF GRANTED, SEND THE MESSAGE
-////            val manager = SmsManager.getDefault()
-////            manager.sendTextMessage(contact, null, message, null, null)
-//
-//            val sentPI = PendingIntent.getBroadcast(
-//                this, 0, Intent(Sent), 0
-//            )
-//
-//            val deliveredPI = PendingIntent.getBroadcast(
-//                this, 0, Intent(Delivered), 0
-//            )
-//
-//            // WHEN THE SMS HAS BEEN SENT
-//            val br: BroadcastReceiver = object : BroadcastReceiver() {
-//                override fun onReceive(arg0: Context?, arg1: Intent?) {
-//                    when (resultCode) {
-//                        RESULT_OK -> Log.d(TAG, "Send Message Result Code OK")
-//
-//                        SmsManager.RESULT_ERROR_GENERIC_FAILURE -> Log.d(
-//                            TAG,
-//                            "Send Message Result Generic Failure"
-//                        )
-//                        SmsManager.RESULT_ERROR_NO_SERVICE -> Log.d(
-//                            TAG,
-//                            "Send Message Result Code No Service"
-//                        )
-//                        SmsManager.RESULT_ERROR_NULL_PDU -> Log.d(
-//                            TAG,
-//                            "Send Message Result Code Null PDU"
-//                        )
-//                        SmsManager.RESULT_ERROR_RADIO_OFF -> Log.d(
-//                            TAG,
-//                            "Send Message Result Code Radio Off"
-//                        )
-//                    }
-//                    unregisterReceiver(this)
-//                }
-//            }
-//            registerReceiver(br, IntentFilter(Sent))
-//
-//            //  WHEN THE SMS HAS BEEN DELIVERED
-//            val br2: BroadcastReceiver = object : BroadcastReceiver() {
-//                override fun onReceive(arg0: Context?, arg1: Intent?) {
-//                    when (resultCode) {
-//                        RESULT_OK -> Log.d(TAG, "Delivered Message Result OK")
-//                        RESULT_CANCELED -> Log.d(TAG, "Send Message Result Result Canceled")
-//                    }
-//                    unregisterReceiver(this)
-//                }
-//            }
-//            registerReceiver(br2, IntentFilter(Delivered))
-//
-//            val sms: SmsManager = SmsManager.getDefault()
-//            sms.sendTextMessage(contact, null, message, sentPI, deliveredPI)
-//
-//
-//        } else {
-//
-//            // IF NOT, GRANTED..ASK FOR PERMISSIONS
-//            Log.d(TAG, "ERROR: No permission to send an SMS")
-//            Toast.makeText(this , "ERROR: No permission to send an SMS", Toast.LENGTH_LONG).show()
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(
-//                    this, android.Manifest.permission.SEND_SMS)){
-//                // SHOW USER A DIALOG..THEN REQUEST ACCESS
-//                ActivityCompat.requestPermissions(
-//                    this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
-//            } else {
-//                ActivityCompat.requestPermissions(
-//                    this, arrayOf<String>(android.Manifest.permission.SEND_SMS),REQUEST_SMS_PERMISSION)
-//            }
-//        }
-//    }
-
 
     // ADD A GEOFENCE
     @SuppressLint("MissingPermission")
@@ -828,10 +546,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             Log.d(TAG, "Background Location Permission is already granted")
 
             // WPI GEOFENCE SETTINGS
-            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
+//            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
 
             // TESTING GEOFENCE SETTINGS
-//            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
+            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
 //            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
 
                 Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL
@@ -978,7 +696,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         sensorManager.unregisterListener(this)
         super.onDestroy()
     }
-
-
-
 }

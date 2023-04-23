@@ -3,30 +3,21 @@ package com.cs523.android.means_v2
 
 // GEOFENCE CLASS TO SET UP GEOFENCES
 
-
 import android.app.PendingIntent
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
-//import android.graphics.RadialGradient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.Geofence
-//import com.google.android.gms.location.Geofence.TransitionTypes
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 
-
-
-
-
 class GeofenceHelper(base: Context?) : ContextWrapper(base) {
 
-    //private var TAG: String = "GeofenceHelper"
     private var pendingIntent: PendingIntent? = null
     private val GEO_REQUEST_CODE: Int = 20001
-//    var intentExtras: String? = null
 
 
     fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
@@ -35,7 +26,6 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_EXIT)
             .build()
     }
-
 
     // BUILD A GEOFENCE AND SETTINGS FOR EACH GEOFENCE THAT IS BUILT
     fun getGeofence(ID: String?, latLng: LatLng, radius: Float, transitionTypes: Int): Geofence {
@@ -49,7 +39,6 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
     }
 
     // GET OR CREATE A PENDING INTENT
-
     fun getPendingIntent(): PendingIntent? {
 
         if (pendingIntent != null) {
@@ -57,8 +46,6 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         }
 
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-//        intent.putExtra("userID",intentExtras)
-
 
         if(Build.VERSION.SDK_INT >= 31) {
             pendingIntent =
@@ -93,24 +80,6 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         }
         return e.localizedMessage
     }
-
-//    fun setExtra(uid: String){
-//        println("value of uid inside geofencehelp/setextra is :$uid")
-//
-//        intentExtras = uid
-//
-//    }
-//
-//    fun printExtra(){
-//        println("Value printed from extras using the geohelper print function is : $intentExtras")
-//
-//    }
-//
-//    fun getExtra(): String? {
-//        println("Value printed from extras using the geohelper print function is : $intentExtras")
-//        return intentExtras
-//
-//    }
 
     companion object {
         private const val TAG = "GeofenceHelper"
