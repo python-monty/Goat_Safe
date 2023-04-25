@@ -45,7 +45,8 @@
     <string name="recovery_timer_text">Recovery Timer : </string>
     <string name="timer">%1$s</string>
     <string name="timer_default">0</string>
-
+    <string name="off">off</string>
+    <string name="on">on</string>
 
 
 </resources>

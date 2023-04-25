@@ -37,9 +37,20 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/app_title"
-            app:layout_constraintBottom_toTopOf="@id/allTheNumbers_Text"
+            app:layout_constraintBottom_toTopOf="@id/tracking"
             tools:layout="@layout/activity_maps"/>
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/tracking"
+            android:textOn="@string/on"
+            android:textOff="@string/off"
+            android:checked="false"
+            app:layout_constraintBottom_toTopOf="@id/allTheNumbers_Text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
 
         <TextView
             android:layout_width="wrap_content"

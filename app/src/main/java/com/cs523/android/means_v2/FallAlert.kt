@@ -27,7 +27,6 @@ private var TAG = "FallAlert"
 
 private var REQUEST_SMS_PERMISSION: Int = 10003
 
-
 class FallAlert: AppCompatActivity() {
 
     // INIT THE VAR TO HOLD THE TEXT ABOVE THE TIMER

@@ -1,14 +1,12 @@
 package com.cs523.android.means_v2
 
-
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -24,6 +22,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cs523.android.means_v2.databinding.ActivityMapsBinding
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,10 +37,7 @@ import com.google.firebase.ktx.Firebase
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.IOException
-import java.text.DecimalFormat
 import java.util.*
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 
 private const val TAG = "MapsActivity"
@@ -49,9 +45,11 @@ private const val TAG = "MapsActivity"
 var dataViewModel: ViewModel = DataViewModel()
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
-    EasyPermissions.PermissionCallbacks, SensorEventListener{
+    EasyPermissions.PermissionCallbacks{
 
     private lateinit var mMap: GoogleMap
+
+    private var accelerationValue: Double = 0.0
 
     private lateinit var binding: ActivityMapsBinding
 
@@ -102,12 +100,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private var currentStreetAddress: String? = null
 
     // VARS FOR THE FALL DETECTION
-    private lateinit var sensorManager : SensorManager
-    private var accelerometer: Sensor? = null
-    private var accelerationReaderPast : Float = SensorManager.GRAVITY_EARTH
-    private var accelerationReader : Float = SensorManager.GRAVITY_EARTH
-    private var mAccel: Float = 0.0F
-    private var movementStart: Long = 0
     private val mTimer = Timer()
 
     @SuppressLint("MissingPermission")
@@ -169,10 +161,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
-// START OF FALL DETECTION CODE
-    // SET UP THE FALL DETECTION SENSOR
-    setupSensor()
-
+        binding.tracking.setOnCheckedChangeListener{_, isChecked ->
+            if (isChecked) {
+                val startIntent = Intent(this, FallService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Log.d("foreground","Starting foreground")
+                    startForegroundService(startIntent)
+                } else {
+                    startService(startIntent)
+                }
+            } else {
+                val stopIntent = Intent(this, FallService::class.java)
+                stopIntent.action = FallService.ACTION_STOP_SERVICE
+                startService(stopIntent)
+            }
+        }
     }
     // GET USER FIREBASE DATABASE INFORMATION AND SEND TO THE VIEWMODEL
     private fun getFirebaseData(userID: String) {
@@ -190,21 +193,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
                         // FILTER THE USERS PROFILE BASED ON THE USERERCONTACTPHONE STRING
                         // GET THE EMERGENCY CONTACT PHONE NUMBER VALUE FROM THAT KEY
-                        var rawPhone =
+                        val rawPhone =
                             uidData.filterKeys { it == "UserErContactPhone" }.values.toString()
                         // DROP THE LEADING SQUARE BRACKET
-                        var partialPhone = rawPhone.drop(1)
+                        val partialPhone = rawPhone.drop(1)
                         /// DROP THE TRAILING SQUARE BRACKET
-                        var erContact = partialPhone.dropLast(1)
+                        val erContact = partialPhone.dropLast(1)
 
 
                         // GET THE USERNAME OF CURRENT USER
-                        var rawName =
+                        val rawName =
                             uidData.filterKeys { it == "UserName" }.values.toString()
                         // DROP THE LEADING SQUARE BRACKET
-                        var partialName = rawName.drop(1)
+                        val partialName = rawName.drop(1)
                         /// DROP THE TRAILING SQUARE BRACKET
-                        var userName = partialName.dropLast(1)
+                        val userName = partialName.dropLast(1)
 
                         Log.d(TAG, "Here is the users data: ${document.data}")
                         Log.d(TAG, "Here is the users er contact: $erContact")
@@ -214,7 +217,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                         updateViewModel(userID, userName, erContact, dataViewModel as DataViewModel)
 
                     }
-//                    Log.d(TAG, "${document.id} => ${document.data}")
                 }
             }
             .addOnFailureListener { exception ->
@@ -224,66 +226,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     }
 
-    // SET UP SENSOR FUNCTION
-    private fun setupSensor() {
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-
-        //register accelerometer
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
-        accelerometer?.also {
-            sensorManager.registerListener(this@MapsActivity,
-                it,
-                SensorManager.SENSOR_DELAY_NORMAL,
-                SensorManager.SENSOR_DELAY_NORMAL)
-        }
-    }
-
-    override fun onSensorChanged(event: SensorEvent?) {
-        when (event?.sensor?.type) {
-            Sensor.TYPE_ACCELEROMETER -> {
-                movementStart = System.currentTimeMillis()
-
-                val x = event.values[0]
-                val y = event.values[1]
-                val z = event.values[2]
-
-                accelerationReaderPast = accelerationReader
-
-                accelerationReader = sqrt(x.toDouble().pow(2.0) + y.toDouble()
-                    .pow(2.0) + z.toDouble().pow(2.0))
-                    .toFloat()
-
-                if(accelerationReader<0.5){
-
-                    Log.d("FreeFall", accelerationReader.toString())
-
-//                    Toast.makeText(this@MapsActivity,"free fall",Toast.LENGTH_SHORT).show()
-
+    private val updateUIReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("broadcast","first line")
+            accelerationValue = intent?.getDoubleExtra("acceleration", 0.0)!!
+            if(accelerationValue==0.0){
+                Log.d("broadcast", "0")
+            }
+            binding.allTheNumbers.text = getString(R.string.acc_value, accelerationValue.toString())
+            if (accelerationValue<0.5){
+                    Log.d("FreeFall", accelerationValue.toString())
                     mTimer.schedule(object : TimerTask() {
                         //start after 2 second delay to make acceleration values "rest"
                         override fun run() {
                             firstTimer.start()
-                            //Toast.makeText(this@MapsActivity,"free fall",Toast.LENGTH_SHORT).show()
-
                         }
                     }, 2000)
                 }
-
-                val precision = DecimalFormat("0.00")
-                val ldAccRound = java.lang.Double.parseDouble(precision.format(accelerationReader))
-
-                // UPDATE THE UI WITH A LIVE REPORTING OF THE CURRENT ACCELEROMETER VALUES
-                binding.allTheNumbers.text = getString(R.string.acc_value, ldAccRound.toString())
-
-            }
         }
     }
 
-
     // SET UP THE RECOVERY TIMER
     var firstTimer: CountDownTimer = object : CountDownTimer(30*1000, 1000) {
-
         //recovery timer
         override fun onTick(millisUntilFinished: Long) {
             //if there is movement before 30 seconds, cancel the timer
@@ -293,16 +257,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             // AT THE END OF 30 SECS, THE EVENT IS RECOGNIZED AS A FALL
             binding.allTheOtherNumbers.text = getString(R.string.timer , ms1.toString())
 
-            if(accelerationReader>10.0f){
-
+            if(accelerationValue>10.0f){
                 binding.allTheOtherNumbers.text = getString(R.string.timer_default)
-                Log.d("Moved", accelerationReader.toString())
-
+                Log.d("Moved", accelerationValue.toString())
                 // CANCEL THE RECOVERY TIMER
                 cancel()
             }
         }
-
         // WHEN THE RECOVERY TIMER EXPIRES, CALL THE FALL ALERT ACTIVITY
         @SuppressLint("MissingPermission")
         override fun onFinish() {
@@ -330,15 +291,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 // ATTEMPT GEOCODE (OBTAIN CURRENT ADDRESS OF LOCATION).
                 // IF NO INTERNET, CATCH IOEXCEPTION AND PROVIDE TOAST MESSAGE
-                var currentLocationTask: Task<Location> = fusedLocationProviderClient.lastLocation
+                val currentLocationTask: Task<Location> = fusedLocationProviderClient.lastLocation
 
                 // IF SUCCESSFUL IN GETTING THE LAST LOCATION...
                 currentLocationTask.addOnSuccessListener { currentLocation ->
-                    var currentLatLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+                    val currentLatLng = LatLng(currentLocation.latitude, currentLocation.longitude)
 
                     // TRY STATEMENT TO CONVERT THE CURRENTLOCATION (LAT/LONG) INTO A STREET ADDRESS
                     try {
-                        var currentAddresses: List<Address> =
+                        val currentAddresses: List<Address> =
                             geoCoder.getFromLocation(
                                 currentLatLng.latitude,
                                 currentLocation.longitude,
@@ -352,21 +313,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
                         //FALL NOTIFICATION....INITIATE AN INTENT USING THE FALLALERT CLASS
                         // SET UP TO CALL THE FALL ALERT ACTIVITY FROM THIS MAPS ACTIVITY
-                        fallIntent = Intent(this@MapsActivity, FallAlert::class.java)
+                        //fallIntent = Intent(this@MapsActivity, FallAlert::class.java)
 
+                        //fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         // ADD THE CURRENT LOCATION'S ADDRESS TO THE INTENT
-                        fallIntent.putExtra("address", currentStreetAddress)
+                        //fallIntent.putExtra("address", currentStreetAddress)
 
                         // CALL THE ER ALERT ACTIVITY
-                        startActivity(fallIntent)
-//                        sendSms(this, contact, message)
+                        //startActivity(fallIntent)
+
+                        sendFallNotificationRequest()
 
                     } catch (e: IOException) {
                         Toast.makeText(this@MapsActivity, "IOException: No Internet access", Toast.LENGTH_LONG)
                             .show()
                     }
                 }
-
             }
 
             Toast.makeText(applicationContext, "Fall Detected!!", Toast.LENGTH_SHORT)
@@ -377,9 +339,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     }
 
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        return
+
+    private fun sendFallNotificationRequest() {
+        val intent = Intent(this, FallService::class.java).apply {
+            action = FallService.ACTION_SHOW_FALL_NOTIFICATION
+            putExtra("address", currentStreetAddress)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
+
 
     // HANDLE WHEN USERS SELECTION MENU OPTIONS AT THE TOP OF THE ACTIVITY
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -405,7 +377,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     //CREATE THE OPTIONS MENU
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        var inflater: MenuInflater = menuInflater
+        val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.options_menu,menu)
         return true
     }
@@ -692,8 +664,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     }
 
-    override fun onDestroy(){
-        sensorManager.unregisterListener(this)
-        super.onDestroy()
+    override fun onResume() {
+        super.onResume()
+        /*registerReceiver(updateUIReceiver, IntentFilter(FallService.ACTION_UPDATE_UI))
+        val filter = IntentFilter("com.cs528.android.falldetection.ACTION_UPDATE_UI")
+        registerReceiver(updateUIReceiver, filter)
+         */
+
+        super.onResume()
+        val filter = IntentFilter(FallService.ACTION_UPDATE_UI)
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateUIReceiver, filter)
     }
+
+    override fun onPause() {
+        super.onPause()
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateUIReceiver)
+        //unregisterReceiver(updateUIReceiver)
+    }
+
+
 }
