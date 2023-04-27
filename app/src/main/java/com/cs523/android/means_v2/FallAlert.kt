@@ -164,6 +164,14 @@ class FallAlert: AppCompatActivity() {
         alarm.stop()
     }
 
+
+//    override fun onDestroy(){
+//        super.onDestroy()
+//
+//        countDownTimer.cancel()
+//
+//    }
+
     // CREATE THE OPTIONS MENU AT THE TOP OF THE ACTIVITY
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         var inflater: MenuInflater = menuInflater

@@ -109,6 +109,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private var mAccel: Float = 0.0F
     private var movementStart: Long = 0
     private val mTimer = Timer()
+//    private lateinit var firstTimer: CountDownTimer
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,6 +175,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     setupSensor()
 
     }
+
+
+
+
     // GET USER FIREBASE DATABASE INFORMATION AND SEND TO THE VIEWMODEL
     private fun getFirebaseData(userID: String) {
         val db = Firebase.firestore
@@ -505,10 +510,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         startLocationUpdates()
 
         // WPI GEOFENCE SETTINGS
-//        addGeofence(wpiClinic,geofenceRadius )
+        addGeofence(wpiClinic,geofenceRadius )
 
         // TESTING GEOFENCE SETTINGS
-        addGeofence(home, geofenceRadius)
+//        addGeofence(home, geofenceRadius)
 //        addGeofence(home2, geofenceRadius)
 
     }
@@ -546,10 +551,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             Log.d(TAG, "Background Location Permission is already granted")
 
             // WPI GEOFENCE SETTINGS
-//            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
+            var geofence: Geofence = geofenceHelper.getGeofence(wpiGeofenceId, latLng, radius,
 
             // TESTING GEOFENCE SETTINGS
-            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
+//            var geofence: Geofence = geofenceHelper.getGeofence(homeId, latLng, radius,
 //            var geofence: Geofence = geofenceHelper.getGeofence(homeId2, latLng, radius,
 
                 Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL
@@ -695,5 +700,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onDestroy(){
         sensorManager.unregisterListener(this)
         super.onDestroy()
+        firstTimer.cancel()
+
+
     }
 }

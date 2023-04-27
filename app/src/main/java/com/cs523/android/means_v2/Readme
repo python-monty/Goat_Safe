@@ -1,3 +1,61 @@
+TEAM5:
+COREY NOLAN     CFNOLAN@WPI.EDU
+AKANKSHA PAWAR  ADPAWAR@WPI.EDU
+AMANDA JONES    AMJONES@WPI.EDU
+ELISE NERDEN    ECNERDEN@WPI.EDU
+
+GOAT SAFE (FINAL_PROJECT_VERSION)
+--This is the version of the project officially submitted as our final project code.
+  It has all the functionality, though none of it functions in the background.
+
+
+INSTALL/OPERATION
+--Install the application to a phone with Android 10 or higher (preferrably) using
+  Android Studio.
+--!!Internet access is (at least initially) required to use the application
+----For interacting with Firebase Authentication, Cloud Firestore DB, and Google Maps
+--Once the application opens on the phone, select the Register button.
+--Create an account by entering at least a username, email, password and Emergency Contact Phone. Other fields
+  are not required.
+--Enter your email and password on the Login screen
+--Accept the three Permissions Prompts
+--On Maps Screen: For Fall Detection:
+----Drop the phone flat on it's back from roughly 3 inches.  The recovery timer will start.
+----Either
+------Allow the timer to expire (by not moving the phone)
+--------Fall Alert will trigger, with audible alarm and additional timer
+--------Either
+----------Allow the timer to expire/Select "Not Okay" button
+------------QrCode Screen will appear, text message will be sent to your Emergency Contact
+------------QrCode scan leads to the user medical details website at https://cul112.weebly.com/
+------------Select "return" to go back to the Maps Screen
+----------Select "Okay" button
+------------Timer is canceled, not text sent
+------------Hit back button to return to Maps Screen
+------Or pick up the phone....which will cancel the recovery timer
+--On Maps Screen: For Emergency Room Entry Detection:
+----Walk into the WPI Medical Clinic (or near) the front door. Stay there until loiter delay expires (about 10 sec)
+----Either:
+------------Allow the timer to expire (by not moving the phone)
+--------Fall Alert will trigger, with audible alarm and additional timer
+--------Either
+----------Allow the timer to expire/Select "Not Okay" button
+------------QrCode Screen will appear, text message will be sent to your Emergency Contact
+------------QrCode scan leads to the user medical details website at https://cul112.weebly.com/
+------------Select "return" to go back to the Maps Screen
+----------Select "Okay" button
+------------Timer is canceled, not text sent
+------------Hit back button to return to Maps Screen
+--On Maps Screen: For User Profile update
+----select the options menu in the upper right corner
+----enter any changes to your profile and select "Update"
+----Re-login
+--On Maps Screen: To Log Out
+----Select the User Icon in the upper right
+------User is now logged out
+
+
+
 GOAT SAFE PERSONAL SAFETY
 -requirements-
 Permissions:
@@ -9,9 +67,8 @@ Other:
 --Internet access (google maps will not show map in maps activity if no internet is available)
 
 
-
-
-
+GITHUB REPO:
+https://github.com/python-monty/Goat_Safe
 
 
 Resources:
@@ -26,11 +83,10 @@ https://www.youtube.com/watch?v=9qGLYKsD-5I&list=PLojHLkK51mTNZITzbi41PY5S16Uj4T
 GEOFENCES -
 https://www.youtube.com/watch?v=nmAtMqljH9M&list=PLojHLkK51mTNZITzbi41PY5S16Uj4TjPm&index=13
 
-
-ALERTDIALOGS -
+ALERT DIALOGS -
 https://developer.android.com/reference/android/app/AlertDialog.Builder
 
-SWITCHMATERIAL -
+SWITCH MATERIAL -
 https://www.meghandev.io/post/switchmaterial-button-example-for-android-studio
 
 ACTIVITY LAUNCHING
@@ -38,5 +94,8 @@ https://www.youtube.com/watch?v=nEe7bx_IuOQ&t=3s
 
 FIREBASE CLOUD FIRESTORE DATABASE
 https://www.youtube.com/watch?v=RiHGwJ_u27k
+
+HASH MAPS
+https://www.bezkoder.com/kotlin-hashmap/
 
 
